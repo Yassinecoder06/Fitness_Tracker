@@ -1,79 +1,78 @@
-# FitTrack
+# 🏋️ FitTrack
 
-FitTrack is a fitness web app concept that evolves across course phases, starting with a static site and growing into a full-stack app.
+A modern, responsive fitness tracking dashboard built with **HTML**, **CSS**, and **Vanilla JavaScript**. Inspired by MyFitnessPal's layout and user experience — no frameworks, no dependencies.
 
-## Core Features
+## ✨ Features
 
-- Set goals: weight goal, workout frequency, target calories.
-- Plan workouts: list of exercises (push-ups, squats, running) with sets/reps/time.
-- Track progress: log workouts and see progress over time.
-- Basic nutrition: simple daily calorie target and what the user ate.
+- **Dashboard** — Daily calorie summary, macronutrient progress bars, calorie budget ring, meals overview, exercise table
+- **Diary** — Daily food & exercise logs, interactive water intake tracker, personal notes
+- **Food Database** — Searchable food cards with macro info, filter chips, nutrition detail modal
+- **Exercise** — Category cards (Cardio, Strength, Flexibility, Sports), recent activity list, add exercise modal
+- **Progress** — Weight & calorie bar charts, monthly goals progress bars, streak tracking
+- **Goals** — Set target weight, daily calorie target, and weekly workout frequency
 
-## Phase 1 - HTML and CSS
+## 🎨 Design
 
-Pages:
+- Clean SaaS dashboard UI with blue accent colors
+- Card-based layout with soft shadows and rounded corners
+- Smooth hover animations and scroll-triggered effects
+- Inter font via Google Fonts
+- Fully responsive: Desktop → Tablet → Mobile (sidebar collapses to hamburger)
 
-- Home
-- Workouts
-- Progress
-- Nutrition
-- About
-- Contact
+## 📁 Project Structure
 
-Focus:
-
-- Layout and responsive design
-- Navbar
-- Cards for workouts
-- Simple progress section (plain text or tables)
-
-## Phase 2 - JavaScript
-
-Features:
-
-- BMI calculator (height + weight -> result)
-- Simple workout timer (start/stop, countdown)
-- Form validation (goals, contact form)
-- Local storage for basic data (user goals, last workout)
-
-## Phase 3 - PHP
-
-Server-side:
-
-- User signup/login (sessions)
-- Save workouts and logs in a database
-- Per-user data on pages
-- Contact form that sends or saves messages
-
-## Phase 4 - Symfony
-
-Full app structure:
-
-- Entities: User, Workout, Exercise, WorkoutLog, Goal
-- CRUD for workouts and logs
-- Dashboard with stats (total workouts, total time)
-- Optional API endpoint for JSON stats
-
-## Next Step
-
-Choose one to start with:
-
-1. Sketch the exact pages and sections for Phase 1
-2. Design a simple database structure for later (PHP/Symfony)
-
-
-## At the moment:
-Fitness_Track/
-│
-├── index.html        (Home)
-├── workouts.html     (Workouts)
-├── progress.html     (Progress)
-├── nutrition.html    (Nutrition)
-├── about.html        (About)
-├── contact.html      (Contact)
-│
+```
+Fitness_Tracker/
+├── index.html          # Dashboard
+├── diary.html          # Daily diary
+├── food.html           # Food database
+├── exercise.html       # Exercise tracker
+├── progress.html       # Progress charts
+├── goals.html          # Goal settings
 ├── css/
-│   └── style.css
-│
+│   └── style.css       # Complete design system
+├── js/
+│   └── main.js         # All interactions
 └── assets/
-    └── images/
+    ├── images/
+    └── icons/
+```
+
+## 🚀 Getting Started
+
+```bash
+# Serve locally (no build step needed)
+npx -y serve .
+
+# Then open http://localhost:3000
+```
+
+Or simply open `index.html` directly in your browser.
+
+## 🛠️ Tech Stack
+
+| Layer | Technology |
+|-------|-----------|
+| Structure | Semantic HTML5 |
+| Styling | Vanilla CSS (Grid, Flexbox, Custom Properties) |
+| Interactivity | Vanilla JavaScript (ES6+) |
+| Icons | Inline SVG |
+| Fonts | [Inter](https://fonts.google.com/specimen/Inter) via Google Fonts |
+
+## 📱 Responsive Breakpoints
+
+| Viewport | Behavior |
+|----------|----------|
+| > 1024px | Full sidebar + multi-column grids |
+| 768–1024px | Adapted grids, narrower search |
+| < 768px | Hamburger menu, single-column layout |
+
+## 🗺️ Roadmap
+
+- **Phase 2 — JavaScript**: BMI calculator, workout timer, form validation, localStorage persistence
+- **Phase 3 — PHP**: User auth, database-backed data, per-user dashboards
+- **Phase 4 — Symfony**: Full MVC with entities (User, Workout, Exercise, Goal), CRUD, API endpoints
+
+## 📄 License
+
+See [LICENSE](LICENSE) for details.
