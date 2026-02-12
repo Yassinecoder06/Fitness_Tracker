@@ -60,3 +60,20 @@ Choose one to start with:
 
 1. Sketch the exact pages and sections for Phase 1
 2. Design a simple database structure for later (PHP/Symfony)
+
+
+## At the moment:
+Fitness_Track/
+│
+├── index.html        (Home)
+├── workouts.html     (Workouts)
+├── progress.html     (Progress)
+├── nutrition.html    (Nutrition)
+├── about.html        (About)
+├── contact.html      (Contact)
+│
+├── css/
+│   └── style.css
+│
+└── assets/
+    └── images/
