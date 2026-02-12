@@ -1,0 +1,243 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="FitTrack Exercise — Browse exercise categories and log your workouts.">
+    <title>FitTrack | Exercise</title>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+
+<body>
+
+    <!-- NAVBAR -->
+    <nav class="navbar">
+        <div class="navbar__left">
+            <button class="navbar__hamburger" aria-label="Toggle menu">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+                    <line x1="3" y1="6" x2="21" y2="6" />
+                    <line x1="3" y1="12" x2="21" y2="12" />
+                    <line x1="3" y1="18" x2="21" y2="18" />
+                </svg>
+            </button>
+            <a href="index.html" class="navbar__logo">
+                <div class="navbar__logo-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                        stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M18 20V10" />
+                        <path d="M12 20V4" />
+                        <path d="M6 20v-6" />
+                    </svg></div>
+                FitTrack
+            </a>
+        </div>
+        <div class="navbar__search">
+            <svg class="navbar__search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                stroke-linecap="round">
+                <circle cx="11" cy="11" r="8" />
+                <line x1="21" y1="21" x2="16.65" y2="16.65" />
+            </svg>
+            <input type="text" placeholder="Search food, exercises, goals...">
+        </div>
+        <div class="navbar__right">
+            <button class="navbar__icon-btn" aria-label="Notifications">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                    stroke-linejoin="round">
+                    <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9" />
+                    <path d="M13.73 21a2 2 0 0 1-3.46 0" />
+                </svg>
+                <span class="navbar__badge"></span>
+            </button>
+            <div class="navbar__avatar" title="User">JD</div>
+        </div>
+    </nav>
+
+    <!-- SIDEBAR -->
+    <div class="sidebar-overlay"></div>
+    <aside class="sidebar">
+        <nav class="sidebar__nav">
+            <span class="sidebar__section-title">Menu</span>
+            <a href="index.html" class="sidebar__link"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                    stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <rect x="3" y="3" width="7" height="7" rx="1" />
+                    <rect x="14" y="3" width="7" height="7" rx="1" />
+                    <rect x="3" y="14" width="7" height="7" rx="1" />
+                    <rect x="14" y="14" width="7" height="7" rx="1" />
+                </svg> Dashboard</a>
+            <a href="diary.html" class="sidebar__link"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                    stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20" />
+                    <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z" />
+                </svg> Diary</a>
+            <a href="food.html" class="sidebar__link"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                    stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M18 8h1a4 4 0 0 1 0 8h-1" />
+                    <path d="M2 8h16v9a4 4 0 0 1-4 4H6a4 4 0 0 1-4-4V8z" />
+                    <line x1="6" y1="1" x2="6" y2="4" />
+                    <line x1="10" y1="1" x2="10" y2="4" />
+                    <line x1="14" y1="1" x2="14" y2="4" />
+                </svg> Food</a>
+            <a href="exercise.html" class="sidebar__link active"><svg viewBox="0 0 24 24" fill="none"
+                    stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M14.4 14.4L9.6 9.6" />
+                    <path
+                        d="M18.657 21.485a2 2 0 1 1-2.829-2.828l-1.767-1.768a2 2 0 1 1-2.829-2.829l-1.767-1.767a2 2 0 1 1-2.829-2.829L4.869 7.697a2 2 0 1 1 2.828-2.829l1.768 1.768a2 2 0 1 1 2.828 2.829l1.768 1.767a2 2 0 1 1 2.828 2.829l1.768 1.767a2 2 0 1 1-2.828 2.829z" />
+                </svg> Exercise</a>
+            <span class="sidebar__section-title">Analytics</span>
+            <a href="progress.html" class="sidebar__link"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                    stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <line x1="18" y1="20" x2="18" y2="10" />
+                    <line x1="12" y1="20" x2="12" y2="4" />
+                    <line x1="6" y1="20" x2="6" y2="14" />
+                </svg> Progress</a>
+            <a href="goals.html" class="sidebar__link"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                    stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <circle cx="12" cy="12" r="10" />
+                    <circle cx="12" cy="12" r="6" />
+                    <circle cx="12" cy="12" r="2" />
+                </svg> Goals</a>
+        </nav>
+    </aside>
+
+    <!-- MAIN -->
+    <main class="main">
+        <div class="main__header flex-between">
+            <div>
+                <h1 class="main__title">Exercise</h1>
+                <p class="main__subtitle">Browse categories and log your workouts</p>
+            </div>
+            <button class="btn btn--primary" data-modal="add-exercise-modal">+ Add Exercise</button>
+        </div>
+
+        <!-- CATEGORY CARDS -->
+        <div class="exercise-categories">
+            <div class="exercise-category-card animate-in">
+                <div class="exercise-category-card__icon exercise-category-card__icon--cardio">🏃</div>
+                <div class="exercise-category-card__name">Cardio</div>
+                <div class="exercise-category-card__count">24 exercises</div>
+            </div>
+            <div class="exercise-category-card animate-in">
+                <div class="exercise-category-card__icon exercise-category-card__icon--strength">🏋️</div>
+                <div class="exercise-category-card__name">Strength</div>
+                <div class="exercise-category-card__count">36 exercises</div>
+            </div>
+            <div class="exercise-category-card animate-in">
+                <div class="exercise-category-card__icon exercise-category-card__icon--flexibility">🧘</div>
+                <div class="exercise-category-card__name">Flexibility</div>
+                <div class="exercise-category-card__count">18 exercises</div>
+            </div>
+            <div class="exercise-category-card animate-in">
+                <div class="exercise-category-card__icon exercise-category-card__icon--sports">⚽</div>
+                <div class="exercise-category-card__name">Sports</div>
+                <div class="exercise-category-card__count">15 exercises</div>
+            </div>
+        </div>
+
+        <!-- RECENT EXERCISES -->
+        <div class="card card--flat animate-in">
+            <div class="card__header">
+                <div>
+                    <h2 class="card__title">Recent Exercises</h2>
+                    <p class="card__subtitle">Your latest logged activities</p>
+                </div>
+            </div>
+            <div class="exercise-list">
+                <div class="exercise-list__item">
+                    <div class="exercise-list__left">
+                        <div class="exercise-list__icon" style="background:var(--primary-bg)">🏃</div>
+                        <div>
+                            <div class="exercise-list__name">Morning Run</div>
+                            <div class="exercise-list__meta">Cardio · 35 min · Today</div>
+                        </div>
+                    </div>
+                    <div class="exercise-list__cals">380 kcal</div>
+                </div>
+                <div class="exercise-list__item">
+                    <div class="exercise-list__left">
+                        <div class="exercise-list__icon" style="background:var(--accent-orange-bg)">🏋️</div>
+                        <div>
+                            <div class="exercise-list__name">Weight Training</div>
+                            <div class="exercise-list__meta">Strength · 45 min · Today</div>
+                        </div>
+                    </div>
+                    <div class="exercise-list__cals">220 kcal</div>
+                </div>
+                <div class="exercise-list__item">
+                    <div class="exercise-list__left">
+                        <div class="exercise-list__icon" style="background:var(--accent-green-bg)">🧘</div>
+                        <div>
+                            <div class="exercise-list__name">Yoga</div>
+                            <div class="exercise-list__meta">Flexibility · 20 min · Today</div>
+                        </div>
+                    </div>
+                    <div class="exercise-list__cals">80 kcal</div>
+                </div>
+                <div class="exercise-list__item">
+                    <div class="exercise-list__left">
+                        <div class="exercise-list__icon" style="background:var(--primary-bg)">🚴</div>
+                        <div>
+                            <div class="exercise-list__name">Cycling</div>
+                            <div class="exercise-list__meta">Cardio · 40 min · Yesterday</div>
+                        </div>
+                    </div>
+                    <div class="exercise-list__cals">320 kcal</div>
+                </div>
+                <div class="exercise-list__item">
+                    <div class="exercise-list__left">
+                        <div class="exercise-list__icon" style="background:var(--accent-purple-bg)">🏊</div>
+                        <div>
+                            <div class="exercise-list__name">Swimming</div>
+                            <div class="exercise-list__meta">Cardio · 30 min · Yesterday</div>
+                        </div>
+                    </div>
+                    <div class="exercise-list__cals">280 kcal</div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- ADD EXERCISE MODAL -->
+    <div class="modal-overlay" id="add-exercise-modal">
+        <div class="modal">
+            <div class="modal__header">
+                <h2 class="modal__title">Add Exercise</h2>
+                <button class="modal__close"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                        stroke-linecap="round">
+                        <line x1="18" y1="6" x2="6" y2="18" />
+                        <line x1="6" y1="6" x2="18" y2="18" />
+                    </svg></button>
+            </div>
+            <div class="modal__body">
+                <div class="form-group">
+                    <label class="form-label">Exercise Name</label>
+                    <input class="form-input" type="text" placeholder="e.g. Running, Push-ups">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Category</label>
+                    <select class="form-select">
+                        <option>Cardio</option>
+                        <option>Strength</option>
+                        <option>Flexibility</option>
+                        <option>Sports</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Duration (minutes)</label>
+                    <input class="form-input" type="number" placeholder="30" min="1">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Calories Burned</label>
+                    <input class="form-input" type="number" placeholder="200" min="0">
+                </div>
+            </div>
+            <div class="modal__footer">
+                <button class="btn btn--secondary modal-cancel">Cancel</button>
+                <button class="btn btn--primary btn--save">Save Exercise</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="js/main.js"></script>
+</body>
+
+</html>

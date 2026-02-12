@@ -3,47 +3,342 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>FitTrack | Home</title>
+  <meta name="description" content="FitTrack Dashboard — Track your daily calories, meals, exercises, and nutrition goals.">
+  <title>FitTrack | Dashboard</title>
   <link rel="stylesheet" href="css/style.css">
 </head>
 <body>
 
+  <!-- NAVBAR -->
   <nav class="navbar">
-    <div class="logo">FitTrack</div>
-    <ul class="nav-links">
-      <li><a href="index.html">Home</a></li>
-      <li><a href="workouts.html">Workouts</a></li>
-      <li><a href="progress.html">Progress</a></li>
-      <li><a href="nutrition.html">Nutrition</a></li>
-      <li><a href="about.html">About</a></li>
-      <li><a href="contact.html">Contact</a></li>
-    </ul>
+    <div class="navbar__left">
+      <button class="navbar__hamburger" aria-label="Toggle menu">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+      </button>
+      <a href="index.html" class="navbar__logo">
+        <div class="navbar__logo-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M18 20V10"/><path d="M12 20V4"/><path d="M6 20v-6"/></svg>
+        </div>
+        FitTrack
+      </a>
+    </div>
+    <div class="navbar__search">
+      <svg class="navbar__search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+      <input type="text" placeholder="Search food, exercises, goals...">
+    </div>
+    <div class="navbar__right">
+      <button class="navbar__icon-btn" aria-label="Notifications">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
+        <span class="navbar__badge"></span>
+      </button>
+      <div class="navbar__avatar" title="User">JD</div>
+    </div>
   </nav>
 
-  <header class="hero">
-    <h1>Track Your Fitness Journey</h1>
-    <p>Plan workouts, set goals, and monitor your progress.</p>
-    <a href="workouts.html" class="btn">Get Started</a>
-  </header>
+  <!-- SIDEBAR -->
+  <div class="sidebar-overlay"></div>
+  <aside class="sidebar">
+    <nav class="sidebar__nav">
+      <span class="sidebar__section-title">Menu</span>
+      <a href="index.html" class="sidebar__link active">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>
+        Dashboard
+      </a>
+      <a href="diary.html" class="sidebar__link">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg>
+        Diary
+      </a>
+      <a href="food.html" class="sidebar__link">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8h1a4 4 0 0 1 0 8h-1"/><path d="M2 8h16v9a4 4 0 0 1-4 4H6a4 4 0 0 1-4-4V8z"/><line x1="6" y1="1" x2="6" y2="4"/><line x1="10" y1="1" x2="10" y2="4"/><line x1="14" y1="1" x2="14" y2="4"/></svg>
+        Food
+      </a>
+      <a href="exercise.html" class="sidebar__link">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14.4 14.4L9.6 9.6"/><path d="M18.657 21.485a2 2 0 1 1-2.829-2.828l-1.767-1.768a2 2 0 1 1-2.829-2.829l-1.767-1.767a2 2 0 1 1-2.829-2.829L4.869 7.697a2 2 0 1 1 2.828-2.829l1.768 1.768a2 2 0 1 1 2.828 2.829l1.768 1.767a2 2 0 1 1 2.828 2.829l1.768 1.767a2 2 0 1 1-2.828 2.829z"/></svg>
+        Exercise
+      </a>
 
-  <section class="features">
-    <div class="card">
-      <h3>🏋 Workouts</h3>
-      <p>Create and plan your workout routines.</p>
-    </div>
-    <div class="card">
-      <h3>📊 Progress</h3>
-      <p>Track your improvement over time.</p>
-    </div>
-    <div class="card">
-      <h3>🥗 Nutrition</h3>
-      <p>Monitor daily calories and meals.</p>
-    </div>
-  </section>
+      <span class="sidebar__section-title">Analytics</span>
+      <a href="progress.html" class="sidebar__link">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
+        Progress
+      </a>
+      <a href="goals.html" class="sidebar__link">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2"/></svg>
+        Goals
+      </a>
+    </nav>
+  </aside>
 
-  <footer>
-    <p>© 2026 FitTrack | Built for learning & fitness</p>
-  </footer>
+  <!-- MAIN CONTENT -->
+  <main class="main">
+    <div class="main__header">
+      <h1 class="main__title">Dashboard</h1>
+      <p class="main__subtitle">Wednesday, February 12, 2026 — Welcome back, John!</p>
+    </div>
 
+    <!-- STAT CARDS -->
+    <div class="stats-grid">
+      <div class="stat-card animate-in">
+        <div class="stat-card__icon stat-card__icon--blue">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20V10"/><path d="M18 20V4"/><path d="M6 20v-4"/></svg>
+        </div>
+        <div class="stat-card__info">
+          <div class="stat-card__label">Calories Remaining</div>
+          <div class="stat-card__value" data-count="1250">0</div>
+          <div class="stat-card__change stat-card__change--up">↑ On track</div>
+        </div>
+      </div>
+      <div class="stat-card animate-in">
+        <div class="stat-card__icon stat-card__icon--green">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8h1a4 4 0 0 1 0 8h-1"/><path d="M2 8h16v9a4 4 0 0 1-4 4H6a4 4 0 0 1-4-4V8z"/><line x1="6" y1="1" x2="6" y2="4"/><line x1="10" y1="1" x2="10" y2="4"/><line x1="14" y1="1" x2="14" y2="4"/></svg>
+        </div>
+        <div class="stat-card__info">
+          <div class="stat-card__label">Calories Consumed</div>
+          <div class="stat-card__value" data-count="1450">0</div>
+          <div class="stat-card__change stat-card__change--up">↑ 12% vs yesterday</div>
+        </div>
+      </div>
+      <div class="stat-card animate-in">
+        <div class="stat-card__icon stat-card__icon--red">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
+        </div>
+        <div class="stat-card__info">
+          <div class="stat-card__label">Calories Burned</div>
+          <div class="stat-card__value" data-count="680">0</div>
+          <div class="stat-card__change stat-card__change--up">↑ Great pace!</div>
+        </div>
+      </div>
+      <div class="stat-card animate-in">
+        <div class="stat-card__icon stat-card__icon--orange">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/></svg>
+        </div>
+        <div class="stat-card__info">
+          <div class="stat-card__label">Steps Today</div>
+          <div class="stat-card__value" data-count="8420">0</div>
+          <div class="stat-card__change stat-card__change--up">↑ 84% of goal</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- PROGRESS SECTION -->
+    <div class="progress-section">
+      <!-- Calorie Ring -->
+      <div class="card card--flat animate-in">
+        <div class="card__header">
+          <div>
+            <h2 class="card__title">Calorie Budget</h2>
+            <p class="card__subtitle">Daily target: 2,700 kcal</p>
+          </div>
+        </div>
+        <div class="calorie-ring">
+          <svg class="calorie-ring__svg" viewBox="0 0 180 180">
+            <circle class="calorie-ring__bg" cx="90" cy="90" r="80"/>
+            <circle class="calorie-ring__fill" cx="90" cy="90" r="80" data-percent="54"/>
+          </svg>
+          <div class="calorie-ring__center">
+            <div class="calorie-ring__number">1,250</div>
+            <div class="calorie-ring__text">remaining</div>
+          </div>
+          <div class="calorie-ring__footer">
+            <div class="calorie-ring__item">
+              <span class="calorie-ring__item-value">2,700</span>
+              <span class="calorie-ring__item-label">Goal</span>
+            </div>
+            <div class="calorie-ring__item">
+              <span class="calorie-ring__item-value">1,450</span>
+              <span class="calorie-ring__item-label">Food</span>
+            </div>
+            <div class="calorie-ring__item">
+              <span class="calorie-ring__item-value">680</span>
+              <span class="calorie-ring__item-label">Exercise</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Macros -->
+      <div class="card card--flat animate-in">
+        <div class="card__header">
+          <div>
+            <h2 class="card__title">Macronutrients</h2>
+            <p class="card__subtitle">Daily breakdown</p>
+          </div>
+        </div>
+        <div class="progress-bar-group">
+          <div class="progress-bar__header">
+            <span class="progress-bar__label">🥩 Protein</span>
+            <span class="progress-bar__value">85g / 150g</span>
+          </div>
+          <div class="progress-bar">
+            <div class="progress-bar__fill progress-bar__fill--blue" data-width="57"></div>
+          </div>
+        </div>
+        <div class="progress-bar-group">
+          <div class="progress-bar__header">
+            <span class="progress-bar__label">🍞 Carbs</span>
+            <span class="progress-bar__value">180g / 300g</span>
+          </div>
+          <div class="progress-bar">
+            <div class="progress-bar__fill progress-bar__fill--orange" data-width="60"></div>
+          </div>
+        </div>
+        <div class="progress-bar-group">
+          <div class="progress-bar__header">
+            <span class="progress-bar__label">🥑 Fat</span>
+            <span class="progress-bar__value">45g / 80g</span>
+          </div>
+          <div class="progress-bar">
+            <div class="progress-bar__fill progress-bar__fill--red" data-width="56"></div>
+          </div>
+        </div>
+        <div class="progress-bar-group">
+          <div class="progress-bar__header">
+            <span class="progress-bar__label">💧 Fiber</span>
+            <span class="progress-bar__value">18g / 30g</span>
+          </div>
+          <div class="progress-bar">
+            <div class="progress-bar__fill progress-bar__fill--green" data-width="60"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- MEALS -->
+    <div class="card__header mb-8">
+      <h2 class="card__title" style="font-size:20px;">Today's Meals</h2>
+    </div>
+    <div class="meals-grid">
+      <div class="meal-card animate-in">
+        <div class="meal-card__header">
+          <div class="meal-card__type">
+            <span class="meal-card__emoji">🌅</span>
+            <div>
+              <div class="meal-card__name">Breakfast</div>
+              <div class="meal-card__cals">420 kcal</div>
+            </div>
+          </div>
+          <button class="meal-card__add-btn" title="Add food">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+          </button>
+        </div>
+        <div class="meal-card__items">
+          <div class="meal-card__item">
+            <span class="meal-card__item-name">Oatmeal with Berries</span>
+            <span class="meal-card__item-cal">280 kcal</span>
+          </div>
+          <div class="meal-card__item">
+            <span class="meal-card__item-name">Green Smoothie</span>
+            <span class="meal-card__item-cal">140 kcal</span>
+          </div>
+        </div>
+      </div>
+      <div class="meal-card animate-in">
+        <div class="meal-card__header">
+          <div class="meal-card__type">
+            <span class="meal-card__emoji">☀️</span>
+            <div>
+              <div class="meal-card__name">Lunch</div>
+              <div class="meal-card__cals">580 kcal</div>
+            </div>
+          </div>
+          <button class="meal-card__add-btn" title="Add food">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+          </button>
+        </div>
+        <div class="meal-card__items">
+          <div class="meal-card__item">
+            <span class="meal-card__item-name">Grilled Chicken Salad</span>
+            <span class="meal-card__item-cal">380 kcal</span>
+          </div>
+          <div class="meal-card__item">
+            <span class="meal-card__item-name">Whole Wheat Bread</span>
+            <span class="meal-card__item-cal">120 kcal</span>
+          </div>
+          <div class="meal-card__item">
+            <span class="meal-card__item-name">Apple</span>
+            <span class="meal-card__item-cal">80 kcal</span>
+          </div>
+        </div>
+      </div>
+      <div class="meal-card animate-in">
+        <div class="meal-card__header">
+          <div class="meal-card__type">
+            <span class="meal-card__emoji">🌙</span>
+            <div>
+              <div class="meal-card__name">Dinner</div>
+              <div class="meal-card__cals">450 kcal</div>
+            </div>
+          </div>
+          <button class="meal-card__add-btn" title="Add food">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+          </button>
+        </div>
+        <div class="meal-card__items">
+          <div class="meal-card__item">
+            <span class="meal-card__item-name">Salmon with Rice</span>
+            <span class="meal-card__item-cal">450 kcal</span>
+          </div>
+        </div>
+      </div>
+      <div class="meal-card animate-in">
+        <div class="meal-card__header">
+          <div class="meal-card__type">
+            <span class="meal-card__emoji">🍎</span>
+            <div>
+              <div class="meal-card__name">Snacks</div>
+              <div class="meal-card__cals">0 kcal</div>
+            </div>
+          </div>
+          <button class="meal-card__add-btn" title="Add food">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+          </button>
+        </div>
+        <div class="meal-card__empty">No snacks logged yet</div>
+      </div>
+    </div>
+
+    <!-- EXERCISE SUMMARY TABLE -->
+    <div class="card card--flat animate-in mb-28" style="margin-top: 28px;">
+      <div class="card__header">
+        <div>
+          <h2 class="card__title">Exercise Summary</h2>
+          <p class="card__subtitle">Today's activities</p>
+        </div>
+        <a href="exercise.html" class="card__action">View All →</a>
+      </div>
+      <table class="data-table">
+        <thead>
+          <tr>
+            <th>Exercise</th>
+            <th>Type</th>
+            <th>Duration</th>
+            <th>Calories</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><strong>Morning Run</strong></td>
+            <td><span class="table-tag table-tag--cardio">Cardio</span></td>
+            <td>35 min</td>
+            <td><strong>380 kcal</strong></td>
+          </tr>
+          <tr>
+            <td><strong>Weight Training</strong></td>
+            <td><span class="table-tag table-tag--strength">Strength</span></td>
+            <td>45 min</td>
+            <td><strong>220 kcal</strong></td>
+          </tr>
+          <tr>
+            <td><strong>Yoga</strong></td>
+            <td><span class="table-tag table-tag--flexibility">Flexibility</span></td>
+            <td>20 min</td>
+            <td><strong>80 kcal</strong></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </main>
+
+  <script src="js/main.js"></script>
 </body>
 </html>

@@ -1,38 +1,306 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="FitTrack Progress — Monitor your weight, calories, and fitness trends.">
   <title>FitTrack | Progress</title>
   <link rel="stylesheet" href="css/style.css">
 </head>
+
 <body>
 
-  <nav class="navbar">...</nav>
+  <!-- NAVBAR -->
+  <nav class="navbar">
+    <div class="navbar__left">
+      <button class="navbar__hamburger" aria-label="Toggle menu">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+          <line x1="3" y1="6" x2="21" y2="6" />
+          <line x1="3" y1="12" x2="21" y2="12" />
+          <line x1="3" y1="18" x2="21" y2="18" />
+        </svg>
+      </button>
+      <a href="index.html" class="navbar__logo">
+        <div class="navbar__logo-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"
+            stroke-linecap="round" stroke-linejoin="round">
+            <path d="M18 20V10" />
+            <path d="M12 20V4" />
+            <path d="M6 20v-6" />
+          </svg></div>
+        FitTrack
+      </a>
+    </div>
+    <div class="navbar__search">
+      <svg class="navbar__search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+        stroke-linecap="round">
+        <circle cx="11" cy="11" r="8" />
+        <line x1="21" y1="21" x2="16.65" y2="16.65" />
+      </svg>
+      <input type="text" placeholder="Search food, exercises, goals...">
+    </div>
+    <div class="navbar__right">
+      <button class="navbar__icon-btn" aria-label="Notifications">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+          stroke-linejoin="round">
+          <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9" />
+          <path d="M13.73 21a2 2 0 0 1-3.46 0" />
+        </svg>
+        <span class="navbar__badge"></span>
+      </button>
+      <div class="navbar__avatar" title="User">JD</div>
+    </div>
+  </nav>
 
-  <main class="container">
-    <h1>Your Progress</h1>
+  <!-- SIDEBAR -->
+  <div class="sidebar-overlay"></div>
+  <aside class="sidebar">
+    <nav class="sidebar__nav">
+      <span class="sidebar__section-title">Menu</span>
+      <a href="index.html" class="sidebar__link"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"
+          stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <rect x="3" y="3" width="7" height="7" rx="1" />
+          <rect x="14" y="3" width="7" height="7" rx="1" />
+          <rect x="3" y="14" width="7" height="7" rx="1" />
+          <rect x="14" y="14" width="7" height="7" rx="1" />
+        </svg> Dashboard</a>
+      <a href="diary.html" class="sidebar__link"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"
+          stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20" />
+          <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z" />
+        </svg> Diary</a>
+      <a href="food.html" class="sidebar__link"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"
+          stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M18 8h1a4 4 0 0 1 0 8h-1" />
+          <path d="M2 8h16v9a4 4 0 0 1-4 4H6a4 4 0 0 1-4-4V8z" />
+          <line x1="6" y1="1" x2="6" y2="4" />
+          <line x1="10" y1="1" x2="10" y2="4" />
+          <line x1="14" y1="1" x2="14" y2="4" />
+        </svg> Food</a>
+      <a href="exercise.html" class="sidebar__link"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"
+          stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M14.4 14.4L9.6 9.6" />
+          <path
+            d="M18.657 21.485a2 2 0 1 1-2.829-2.828l-1.767-1.768a2 2 0 1 1-2.829-2.829l-1.767-1.767a2 2 0 1 1-2.829-2.829L4.869 7.697a2 2 0 1 1 2.828-2.829l1.768 1.768a2 2 0 1 1 2.828 2.829l1.768 1.767a2 2 0 1 1 2.828 2.829l1.768 1.767a2 2 0 1 1-2.828 2.829z" />
+        </svg> Exercise</a>
+      <span class="sidebar__section-title">Analytics</span>
+      <a href="progress.html" class="sidebar__link active"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"
+          stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <line x1="18" y1="20" x2="18" y2="10" />
+          <line x1="12" y1="20" x2="12" y2="4" />
+          <line x1="6" y1="20" x2="6" y2="14" />
+        </svg> Progress</a>
+      <a href="goals.html" class="sidebar__link"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"
+          stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="12" cy="12" r="10" />
+          <circle cx="12" cy="12" r="6" />
+          <circle cx="12" cy="12" r="2" />
+        </svg> Goals</a>
+    </nav>
+  </aside>
 
-    <table class="progress-table">
-      <tr>
-        <th>Date</th>
-        <th>Workout</th>
-        <th>Duration</th>
-      </tr>
-      <tr>
-        <td>10/02</td>
-        <td>Upper Body</td>
-        <td>45 min</td>
-      </tr>
-      <tr>
-        <td>09/02</td>
-        <td>Cardio</td>
-        <td>30 min</td>
-      </tr>
-    </table>
+  <!-- MAIN -->
+  <main class="main">
+    <div class="main__header">
+      <h1 class="main__title">Progress</h1>
+      <p class="main__subtitle">Monitor your fitness trends and achievements</p>
+    </div>
+
+    <!-- STATS OVERVIEW -->
+    <div class="stats-grid">
+      <div class="stat-card animate-in">
+        <div class="stat-card__icon stat-card__icon--blue"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"
+            stroke-width="2">
+            <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2" />
+            <circle cx="9" cy="7" r="4" />
+          </svg></div>
+        <div class="stat-card__info">
+          <div class="stat-card__label">Current Weight</div>
+          <div class="stat-card__value">78 <span style="font-size:16px;color:var(--gray-500)">kg</span></div>
+          <div class="stat-card__change stat-card__change--down">↓ 2kg this month</div>
+        </div>
+      </div>
+      <div class="stat-card animate-in">
+        <div class="stat-card__icon stat-card__icon--green"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"
+            stroke-width="2" stroke-linecap="round">
+            <polyline points="22 12 18 12 15 21 9 3 6 12 2 12" />
+          </svg></div>
+        <div class="stat-card__info">
+          <div class="stat-card__label">Avg Daily Calories</div>
+          <div class="stat-card__value" data-count="2150">0</div>
+          <div class="stat-card__change stat-card__change--up">↑ On target</div>
+        </div>
+      </div>
+      <div class="stat-card animate-in">
+        <div class="stat-card__icon stat-card__icon--orange"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"
+            stroke-width="2" stroke-linecap="round">
+            <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2" />
+          </svg></div>
+        <div class="stat-card__info">
+          <div class="stat-card__label">Workouts This Week</div>
+          <div class="stat-card__value" data-count="5">0</div>
+          <div class="stat-card__change stat-card__change--up">↑ 1 more than last week</div>
+        </div>
+      </div>
+      <div class="stat-card animate-in">
+        <div class="stat-card__icon stat-card__icon--purple"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"
+            stroke-width="2">
+            <circle cx="12" cy="12" r="10" />
+            <polyline points="12 6 12 12 16 14" />
+          </svg></div>
+        <div class="stat-card__info">
+          <div class="stat-card__label">Active Streak</div>
+          <div class="stat-card__value" data-count="12">0</div>
+          <div class="stat-card__change stat-card__change--up">🔥 days</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- CHART CARDS -->
+    <div class="progress-grid">
+      <!-- Weight Progress -->
+      <div class="card card--flat animate-in">
+        <div class="card__header">
+          <div>
+            <h2 class="card__title">⚖️ Weight Progress</h2>
+            <p class="card__subtitle">Last 7 days</p>
+          </div>
+        </div>
+        <div class="simple-chart">
+          <div class="simple-chart__bar-wrapper">
+            <span class="simple-chart__value">80</span>
+            <div class="simple-chart__bar simple-chart__bar--blue" data-height="80" style="height:0%"></div>
+            <span class="simple-chart__label">Mon</span>
+          </div>
+          <div class="simple-chart__bar-wrapper">
+            <span class="simple-chart__value">79.5</span>
+            <div class="simple-chart__bar simple-chart__bar--blue" data-height="77" style="height:0%"></div>
+            <span class="simple-chart__label">Tue</span>
+          </div>
+          <div class="simple-chart__bar-wrapper">
+            <span class="simple-chart__value">79.2</span>
+            <div class="simple-chart__bar simple-chart__bar--blue" data-height="75" style="height:0%"></div>
+            <span class="simple-chart__label">Wed</span>
+          </div>
+          <div class="simple-chart__bar-wrapper">
+            <span class="simple-chart__value">79</span>
+            <div class="simple-chart__bar simple-chart__bar--blue" data-height="73" style="height:0%"></div>
+            <span class="simple-chart__label">Thu</span>
+          </div>
+          <div class="simple-chart__bar-wrapper">
+            <span class="simple-chart__value">78.5</span>
+            <div class="simple-chart__bar simple-chart__bar--blue" data-height="70" style="height:0%"></div>
+            <span class="simple-chart__label">Fri</span>
+          </div>
+          <div class="simple-chart__bar-wrapper">
+            <span class="simple-chart__value">78.2</span>
+            <div class="simple-chart__bar simple-chart__bar--blue" data-height="68" style="height:0%"></div>
+            <span class="simple-chart__label">Sat</span>
+          </div>
+          <div class="simple-chart__bar-wrapper">
+            <span class="simple-chart__value">78</span>
+            <div class="simple-chart__bar simple-chart__bar--blue" data-height="65" style="height:0%"></div>
+            <span class="simple-chart__label">Sun</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Calories History -->
+      <div class="card card--flat animate-in">
+        <div class="card__header">
+          <div>
+            <h2 class="card__title">🔥 Calories History</h2>
+            <p class="card__subtitle">Last 7 days</p>
+          </div>
+        </div>
+        <div class="simple-chart">
+          <div class="simple-chart__bar-wrapper">
+            <span class="simple-chart__value">2100</span>
+            <div class="simple-chart__bar simple-chart__bar--green" data-height="78" style="height:0%"></div>
+            <span class="simple-chart__label">Mon</span>
+          </div>
+          <div class="simple-chart__bar-wrapper">
+            <span class="simple-chart__value">1950</span>
+            <div class="simple-chart__bar simple-chart__bar--green" data-height="72" style="height:0%"></div>
+            <span class="simple-chart__label">Tue</span>
+          </div>
+          <div class="simple-chart__bar-wrapper">
+            <span class="simple-chart__value">2300</span>
+            <div class="simple-chart__bar simple-chart__bar--green" data-height="85" style="height:0%"></div>
+            <span class="simple-chart__label">Wed</span>
+          </div>
+          <div class="simple-chart__bar-wrapper">
+            <span class="simple-chart__value">2050</span>
+            <div class="simple-chart__bar simple-chart__bar--green" data-height="76" style="height:0%"></div>
+            <span class="simple-chart__label">Thu</span>
+          </div>
+          <div class="simple-chart__bar-wrapper">
+            <span class="simple-chart__value">1800</span>
+            <div class="simple-chart__bar simple-chart__bar--green" data-height="67" style="height:0%"></div>
+            <span class="simple-chart__label">Fri</span>
+          </div>
+          <div class="simple-chart__bar-wrapper">
+            <span class="simple-chart__value">2400</span>
+            <div class="simple-chart__bar simple-chart__bar--green" data-height="89" style="height:0%"></div>
+            <span class="simple-chart__label">Sat</span>
+          </div>
+          <div class="simple-chart__bar-wrapper">
+            <span class="simple-chart__value">2150</span>
+            <div class="simple-chart__bar simple-chart__bar--green" data-height="80" style="height:0%"></div>
+            <span class="simple-chart__label">Sun</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- PROGRESS BARS -->
+    <div class="card card--flat animate-in">
+      <div class="card__header">
+        <div>
+          <h2 class="card__title">📊 Monthly Goals Progress</h2>
+          <p class="card__subtitle">February 2026</p>
+        </div>
+      </div>
+      <div class="progress-bar-group">
+        <div class="progress-bar__header">
+          <span class="progress-bar__label">Weight Loss Progress</span>
+          <span class="progress-bar__value">2 / 3 kg</span>
+        </div>
+        <div class="progress-bar">
+          <div class="progress-bar__fill progress-bar__fill--blue" data-width="67"></div>
+        </div>
+      </div>
+      <div class="progress-bar-group">
+        <div class="progress-bar__header">
+          <span class="progress-bar__label">Workout Frequency</span>
+          <span class="progress-bar__value">18 / 20 sessions</span>
+        </div>
+        <div class="progress-bar">
+          <div class="progress-bar__fill progress-bar__fill--green" data-width="90"></div>
+        </div>
+      </div>
+      <div class="progress-bar-group">
+        <div class="progress-bar__header">
+          <span class="progress-bar__label">Calorie Target Adherence</span>
+          <span class="progress-bar__value">10 / 12 days on target</span>
+        </div>
+        <div class="progress-bar">
+          <div class="progress-bar__fill progress-bar__fill--orange" data-width="83"></div>
+        </div>
+      </div>
+      <div class="progress-bar-group">
+        <div class="progress-bar__header">
+          <span class="progress-bar__label">Water Intake Goal</span>
+          <span class="progress-bar__value">8 / 12 days achieved</span>
+        </div>
+        <div class="progress-bar">
+          <div class="progress-bar__fill progress-bar__fill--purple" data-width="67"></div>
+        </div>
+      </div>
+    </div>
   </main>
 
-  <footer>...</footer>
-
+  <script src="js/main.js"></script>
 </body>
+
 </html>
