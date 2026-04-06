@@ -41,12 +41,13 @@ function initSidebar() {
    ACTIVE NAV LINK
    --------------------------------------------------- */
 function initActiveNav() {
-  const currentPage = window.location.pathname.split('/').pop() || 'index.html';
+  const currentPage = window.location.pathname.split('/').pop() || 'index.php';
+  const normalizedCurrent = currentPage.replace(/\.html$/i, '.php');
   const links = document.querySelectorAll('.sidebar__link');
 
   links.forEach(link => {
-    const href = link.getAttribute('href');
-    if (href === currentPage || (currentPage === '' && href === 'index.html')) {
+    const href = (link.getAttribute('href') || '').replace(/\.html$/i, '.php');
+    if (href === normalizedCurrent || (normalizedCurrent === '' && href === 'index.php')) {
       link.classList.add('active');
     } else {
       link.classList.remove('active');
