@@ -1,0 +1,10 @@
+-- Member 4 Food Database seed entrypoint
+--
+-- This module uses generated seed data from OpenFoodFacts export.
+-- Generate it first by running:
+--   c:/Work/Fitness_Tracker/.venv/Scripts/python.exe c:/Work/Fitness_Tracker/scripts/import_foods.py
+-- with RUN_MODE=export and TARGET_COUNT=50 in .env.
+--
+-- Then execute sql/foods_seed_from_openfoodfacts.sql in Supabase SQL editor.
+--
+-- Keep this file as a stable pointer for Member 4 setup docs.
