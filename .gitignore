@@ -19,6 +19,7 @@ vendor/
 # VS Code local workspace settings (keep shared settings if needed)
 .vscode/
 !.vscode/settings.json
+.agents/
 
 # OS artifacts
 Thumbs.db
@@ -30,3 +31,5 @@ db/foods_export.json
 docs/
 
 *.temp
+skills-lock.json
+

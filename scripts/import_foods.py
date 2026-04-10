@@ -3,6 +3,7 @@ import os
 import re
 import json
 import time
+import random
 from typing import Dict, List, Optional, Tuple
 
 import psycopg2
@@ -17,13 +18,14 @@ logging.basicConfig(
     format="%(asctime)s [%(levelname)s] %(message)s",
 )
 
-OPENFOODFACTS_ENDPOINT = "https://world.openfoodfacts.org/cgi/search.pl"
+OPENFOODFACTS_ENDPOINT = os.getenv("OPENFOODFACTS_ENDPOINT", "https://world.openfoodfacts.org/cgi/search.pl").strip()
 TARGET_COUNT = int(os.getenv("TARGET_COUNT", "50"))
 MAX_PER_TERM = int(os.getenv("MAX_PER_TERM", "50"))
 PAGE_SIZE = 100
 REQUEST_TIMEOUT = 20
 SLEEP_BETWEEN_CALLS = 0.25
-MAX_FETCH_RETRIES = 2
+MAX_FETCH_RETRIES = int(os.getenv("MAX_FETCH_RETRIES", "5"))
+MAX_BACKOFF_SECONDS = float(os.getenv("OPENFOODFACTS_MAX_BACKOFF_SECONDS", "20"))
 EXPORT_JSON_PATH = os.getenv("EXPORT_JSON_PATH", "db/foods_export.json")
 EXPORT_SQL_PATH = os.getenv("EXPORT_SQL_PATH", "sql/foods_seed_from_openfoodfacts.sql")
 
@@ -31,6 +33,8 @@ EXPORT_SQL_PATH = os.getenv("EXPORT_SQL_PATH", "sql/foods_seed_from_openfoodfact
 # app identity header and allow override via env for production usage.
 DEFAULT_OFF_USER_AGENT = "FitTrackFoodImporter/1.0 (Fitness Tracker data sync)"
 OFF_USER_AGENT = os.getenv("OPENFOODFACTS_USER_AGENT", DEFAULT_OFF_USER_AGENT).strip()
+OPENFOODFACTS_USER_ID = (os.getenv("OPENFOODFACTS_USER_ID") or "").strip()
+OPENFOODFACTS_PASSWORD = os.getenv("OPENFOODFACTS_PASSWORD") or ""
 
 HTTP_SESSION = requests.Session()
 HTTP_SESSION.headers.update(
@@ -39,6 +43,9 @@ HTTP_SESSION.headers.update(
         "Accept": "application/json",
     }
 )
+
+if OPENFOODFACTS_USER_ID and OPENFOODFACTS_PASSWORD:
+    HTTP_SESSION.auth = (OPENFOODFACTS_USER_ID, OPENFOODFACTS_PASSWORD)
 
 FIT_CATEGORIES = ["Fruits", "Vegetables", "Protein", "Grains", "Dairy", "Snacks"]
 
@@ -103,6 +110,24 @@ def fetch_products(term: str, page: int) -> List[Dict]:
         except requests.HTTPError as exc:
             last_error = exc
             status_code = exc.response.status_code if exc.response is not None else None
+            response_text = (exc.response.text[:250] if exc.response is not None and exc.response.text else "")
+
+            if status_code in (429, 503):
+                logging.warning(
+                    "OpenFoodFacts rate-limited/unavailable (%s) term=%s page=%s attempt=%s/%s. "
+                    "Using backoff and retry.",
+                    status_code,
+                    term,
+                    page,
+                    attempt,
+                    MAX_FETCH_RETRIES,
+                )
+                if response_text and "temporarily unavailable" in response_text.lower():
+                    logging.warning(
+                        "OpenFoodFacts returned temporary-unavailable page. "
+                        "Set OPENFOODFACTS_USER_ID/OPENFOODFACTS_PASSWORD in .env for priority access."
+                    )
+
             if status_code == 403:
                 logging.warning(
                     "OpenFoodFacts returned 403 (term=%s page=%s attempt=%s user-agent=%s). "
@@ -112,14 +137,28 @@ def fetch_products(term: str, page: int) -> List[Dict]:
                     attempt,
                     OFF_USER_AGENT,
                 )
+
             if attempt < MAX_FETCH_RETRIES:
-                time.sleep(0.75 * attempt)
+                retry_after = None
+                if exc.response is not None:
+                    retry_after = exc.response.headers.get("Retry-After")
+
+                if retry_after:
+                    try:
+                        sleep_seconds = max(float(retry_after), 0.5)
+                    except ValueError:
+                        sleep_seconds = min((2 ** attempt) + random.uniform(0.0, 0.7), MAX_BACKOFF_SECONDS)
+                else:
+                    sleep_seconds = min((2 ** attempt) + random.uniform(0.0, 0.7), MAX_BACKOFF_SECONDS)
+
+                time.sleep(sleep_seconds)
                 continue
             raise
         except requests.RequestException as exc:
             last_error = exc
             if attempt < MAX_FETCH_RETRIES:
-                time.sleep(0.75 * attempt)
+                sleep_seconds = min((2 ** attempt) + random.uniform(0.0, 0.7), MAX_BACKOFF_SECONDS)
+                time.sleep(sleep_seconds)
                 continue
             raise
 
@@ -467,28 +506,9 @@ def connect_database() -> psycopg2.extensions.connection:
         except Exception as exc:
             logging.warning("Direct DB connection (%s:%s) failed: %s", direct_host, direct_port, exc)
 
-    # Fallback path: Supabase pooler (eu-west-2).
-    pooler_host = (os.getenv("SUPABASE_POOLER_HOST") or "").strip()
-    pooler_port = (os.getenv("SUPABASE_POOLER_PORT") or "6543").strip()
-    pooler_db_name = (os.getenv("SUPABASE_POOLER_DB_NAME") or "postgres").strip()
-    pooler_user = (os.getenv("SUPABASE_POOLER_USER") or "").strip()
-    pooler_password = os.getenv("SUPABASE_POOLER_PASSWORD") or ""
-    pooler_sslmode = (os.getenv("SUPABASE_POOLER_SSLMODE") or "require").strip()
-
-    if all([pooler_host, pooler_db_name, pooler_user, pooler_password]):
-        logging.warning("Falling back to Supabase pooler connection (%s:%s)", pooler_host, pooler_port)
-        return psycopg2.connect(
-            host=pooler_host,
-            port=pooler_port,
-            dbname=pooler_db_name,
-            user=pooler_user,
-            password=pooler_password,
-            sslmode=pooler_sslmode,
-        )
-
     raise RuntimeError(
-        "DB connection config missing/failed. Provide direct settings (SUPABASE_DB_URL or SUPABASE_DB_HOST/PORT/NAME/USER/PASSWORD) "
-        "and optional pooler fallback (SUPABASE_POOLER_HOST/PORT/DB_NAME/USER/PASSWORD)."
+        "DB connection config missing/failed. Provide direct settings "
+        "(SUPABASE_DB_URL or SUPABASE_DB_HOST/PORT/NAME/USER/PASSWORD)."
     )
 
 def main() -> None:
@@ -499,13 +519,6 @@ def main() -> None:
             os.getenv("SUPABASE_DB_NAME"),
             os.getenv("SUPABASE_DB_USER"),
             os.getenv("SUPABASE_DB_PASSWORD"),
-        ]
-    )
-    pooler_fallback_available = all(
-        [
-            os.getenv("SUPABASE_POOLER_HOST"),
-            os.getenv("SUPABASE_POOLER_USER"),
-            os.getenv("SUPABASE_POOLER_PASSWORD"),
         ]
     )
     image_mode = os.getenv("IMAGE_MODE", "direct").strip().lower()
@@ -520,9 +533,9 @@ def main() -> None:
     if MAX_PER_TERM <= 0:
         raise RuntimeError("MAX_PER_TERM must be greater than 0")
 
-    if run_mode == "db" and not db_url and not direct_fallback_available and not pooler_fallback_available:
+    if run_mode == "db" and not db_url and not direct_fallback_available:
         raise RuntimeError(
-            "RUN_MODE=db requires direct DB settings or pooler fallback settings"
+            "RUN_MODE=db requires direct DB settings"
         )
 
     if run_mode == "export" and image_mode != "direct":

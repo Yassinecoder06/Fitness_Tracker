@@ -35,9 +35,6 @@ create unique index if not exists ux_foods_source_product
   on public.foods (source, source_product_id)
   where source_product_id is not null;
 
-create unique index if not exists ux_foods_name_category_serving
-  on public.foods (lower(name), category, lower(serving));
-
 create index if not exists idx_foods_name_lower on public.foods (lower(name));
 create index if not exists idx_foods_category on public.foods (category);
 create index if not exists idx_foods_created_at on public.foods (created_at desc);
