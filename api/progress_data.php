@@ -1,6 +1,6 @@
 <?php
 header('Content-Type: application/json');
-require '../config/db.php';
+require '../config/db_postgres.php';
 $user_id = 1; // hardcoded until auth is integrated
 try {
     $pdo = getDBConnection();

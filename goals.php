@@ -1,5 +1,5 @@
 <?php
-require 'config/db.php';
+require 'config/db_postgres_env.php';
 
 $user_id = 1; // hardcoded until auth is integrated
 $pdo = getDBConnection();
@@ -11,12 +11,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $daily_calories = intval($_POST['daily_calories'] ?? 0);
     $weekly_workouts = intval($_POST['weekly_workouts'] ?? 0);
 
-    $stmt = $pdo->prepare("INSERT INTO goals (user_id, target_weight, daily_calories, weekly_workouts) 
-        VALUES (?, ?, ?, ?) 
-        ON DUPLICATE KEY UPDATE 
-        target_weight = VALUES(target_weight), 
-        daily_calories = VALUES(daily_calories), 
-        weekly_workouts = VALUES(weekly_workouts)");
+    $stmt = $pdo->prepare("INSERT INTO goals (user_id, target_weight, daily_calories, weekly_workouts)
+        VALUES (?, ?, ?, ?)
+        ON CONFLICT (user_id) DO UPDATE SET
+        target_weight = EXCLUDED.target_weight,
+        daily_calories = EXCLUDED.daily_calories,
+        weekly_workouts = EXCLUDED.weekly_workouts");
     $stmt->execute([$user_id, $target_weight, $daily_calories, $weekly_workouts]);
     $success = true;
 }
