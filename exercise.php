@@ -1,3 +1,7 @@
+<?php
+   require_once __DIR__ . '/includes/auth_guard.php';
+   require_once __DIR__ . '/includes/db.php';
+ ?>
 <!DOCTYPE html>
 <html lang="en">
 
@@ -21,7 +25,7 @@
                     <line x1="3" y1="18" x2="21" y2="18" />
                 </svg>
             </button>
-            <a href="index.html" class="navbar__logo">
+            <a href="dashboard.php" class="navbar__logo">
                 <div class="navbar__logo-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"
                         stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
                         <path d="M18 20V10" />
@@ -57,19 +61,19 @@
     <aside class="sidebar">
         <nav class="sidebar__nav">
             <span class="sidebar__section-title">Menu</span>
-            <a href="index.html" class="sidebar__link"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"
+            <a href="dashboard.php" class="sidebar__link"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"
                     stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                     <rect x="3" y="3" width="7" height="7" rx="1" />
                     <rect x="14" y="3" width="7" height="7" rx="1" />
                     <rect x="3" y="14" width="7" height="7" rx="1" />
                     <rect x="14" y="14" width="7" height="7" rx="1" />
                 </svg> Dashboard</a>
-            <a href="diary.html" class="sidebar__link"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"
+            <a href="diary.php" class="sidebar__link"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"
                     stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                     <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20" />
                     <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z" />
                 </svg> Diary</a>
-            <a href="food.html" class="sidebar__link"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"
+            <a href="food.php" class="sidebar__link"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"
                     stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                     <path d="M18 8h1a4 4 0 0 1 0 8h-1" />
                     <path d="M2 8h16v9a4 4 0 0 1-4 4H6a4 4 0 0 1-4-4V8z" />
@@ -77,20 +81,20 @@
                     <line x1="10" y1="1" x2="10" y2="4" />
                     <line x1="14" y1="1" x2="14" y2="4" />
                 </svg> Food</a>
-            <a href="exercise.html" class="sidebar__link active"><svg viewBox="0 0 24 24" fill="none"
+            <a href="exercise.php" class="sidebar__link active"><svg viewBox="0 0 24 24" fill="none"
                     stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                     <path d="M14.4 14.4L9.6 9.6" />
                     <path
                         d="M18.657 21.485a2 2 0 1 1-2.829-2.828l-1.767-1.768a2 2 0 1 1-2.829-2.829l-1.767-1.767a2 2 0 1 1-2.829-2.829L4.869 7.697a2 2 0 1 1 2.828-2.829l1.768 1.768a2 2 0 1 1 2.828 2.829l1.768 1.767a2 2 0 1 1 2.828 2.829l1.768 1.767a2 2 0 1 1-2.828 2.829z" />
                 </svg> Exercise</a>
             <span class="sidebar__section-title">Analytics</span>
-            <a href="progress.html" class="sidebar__link"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"
+            <a href="progress.php" class="sidebar__link"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"
                     stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                     <line x1="18" y1="20" x2="18" y2="10" />
                     <line x1="12" y1="20" x2="12" y2="4" />
                     <line x1="6" y1="20" x2="6" y2="14" />
                 </svg> Progress</a>
-            <a href="goals.html" class="sidebar__link"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"
+            <a href="goals.php" class="sidebar__link"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"
                     stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                     <circle cx="12" cy="12" r="10" />
                     <circle cx="12" cy="12" r="6" />

@@ -1,0 +1,13 @@
+<document>
+<document nb=1>the new file structure of the project</document>
+<document nb=2>the html files </document>
+</document>
+<role>
+    you are the member 1 in the project .so you are authentification system developer 
+</role>
+<instruction>
+    according to the new file structure and the html files 
+    -give the code of index.php (the file of the form of login and registration)
+    -rewrite the auth files,the includes and java script auth-validation
+    -rewrite the sql script including creating table and insterting values to test later 
+</instruction>
