@@ -180,37 +180,6 @@ CREATE TABLE daily_stats (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 
--- ============================================================
---  TEST DATA
---
---  All passwords are: Password123
---  Hash generated with: password_hash('Password123', PASSWORD_BCRYPT, ['cost'=>12])
---
---  Test accounts:
---    john@fittrack.com   / Password123
---    sarah@fittrack.com  / Password123
---    ahmed@fittrack.com  / Password123
--- ============================================================
-
-INSERT INTO users (name, email, password) VALUES
-(
-    'John Doe',
-    'john@fittrack.com',
-    '$2y$12$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi'
-    -- Note: this is a standard bcrypt test hash for 'Password123'
-    -- In real usage, PHP's password_hash() generates the hash at registration
-),
-(
-    'Sarah Martin',
-    'sarah@fittrack.com',
-    '$2y$12$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi'
-),
-(
-    'Ahmed Ben Ali',
-    'ahmed@fittrack.com',
-    '$2y$12$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi'
-);
-
 
 -- ── Food catalog (Member 4 test data) ────────────────────────
 INSERT INTO foods (name, category, calories, protein, carbs, fat) VALUES
@@ -264,53 +233,3 @@ INSERT INTO meals (user_id, food_name, meal_type, calories, protein, carbs, fat,
 (1, 'Whole Wheat Bread',     'Lunch',     120,  4, 22,  2, CURDATE()),
 (1, 'Apple',                 'Lunch',      80,  0, 21,  0, CURDATE()),
 (1, 'Salmon with Rice',      'Dinner',    450, 33, 43, 19, CURDATE());
-
-INSERT INTO exercise_logs (user_id, exercise_name, duration, calories_burned, date) VALUES
-(1, 'Morning Run',    35, 380, CURDATE()),
-(1, 'Weight Training',45, 220, CURDATE()),
-(1, 'Yoga',           20,  80, CURDATE());
-
-
--- ── Sample goals for all test users ──────────────────────────
-INSERT INTO goals (user_id, target_weight, daily_calories, weekly_workouts) VALUES
-(1, 75, 2700, 5),
-(2, 60, 1800, 4),
-(3, 80, 2500, 3);
-
-
--- ── Sample weight logs for John ──────────────────────────────
-INSERT INTO weight_logs (user_id, weight, date) VALUES
-(1, 81.0, DATE_SUB(CURDATE(), INTERVAL 30 DAY)),
-(1, 80.2, DATE_SUB(CURDATE(), INTERVAL 24 DAY)),
-(1, 79.8, DATE_SUB(CURDATE(), INTERVAL 18 DAY)),
-(1, 79.1, DATE_SUB(CURDATE(), INTERVAL 12 DAY)),
-(1, 78.5, DATE_SUB(CURDATE(), INTERVAL  6 DAY)),
-(1, 78.0, CURDATE());
-
-
--- ── Sample daily stats for John ──────────────────────────────
-INSERT INTO daily_stats (user_id, date, water_glasses, calories_consumed) VALUES
-(1, CURDATE(), 5, 1450);
-
-
--- ============================================================
---  QUICK VERIFICATION QUERIES
---  Run these after importing to confirm everything worked.
--- ============================================================
-/*
-SELECT 'users'         AS tbl, COUNT(*) AS rows FROM users
-UNION ALL
-SELECT 'foods',               COUNT(*) FROM foods
-UNION ALL
-SELECT 'exercises',           COUNT(*) FROM exercises
-UNION ALL
-SELECT 'meals',               COUNT(*) FROM meals
-UNION ALL
-SELECT 'exercise_logs',       COUNT(*) FROM exercise_logs
-UNION ALL
-SELECT 'goals',               COUNT(*) FROM goals
-UNION ALL
-SELECT 'weight_logs',         COUNT(*) FROM weight_logs
-UNION ALL
-SELECT 'daily_stats',         COUNT(*) FROM daily_stats;
-*/

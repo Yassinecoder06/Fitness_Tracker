@@ -23,7 +23,7 @@ if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
     exit;
 }
 
-require_once __DIR__ . '/includes/db.php';  
+require_once __DIR__ . '/../includes/db.php';  
 
 /* ── 1. Sanitize inputs ── */
 $name     = trim($_POST['name']     ?? '');
@@ -108,5 +108,5 @@ try {
 
 /* ── 6. Success — redirect to login tab with a success notice ── */
 $_SESSION['register_ok'] = true;
-header('Location: /index.php');
+header('Location: /../index.php');
 exit;

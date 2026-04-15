@@ -38,5 +38,5 @@ if (ini_get('session.use_cookies')) {
 session_destroy();
 
 /* Step 4 — Send user back to the login page */
-header('Location: index.php');
+header('Location: /../index.php');
 exit;
