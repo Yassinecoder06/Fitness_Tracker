@@ -36,5 +36,5 @@ docs/
 *.temp
 skills-lock.json
 
-./sql
-./db
+sql
+db
