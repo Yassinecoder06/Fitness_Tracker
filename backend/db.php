@@ -21,9 +21,14 @@ function get_pdo(): PDO
         return $pdo;
     }
 
-    $poolerDsn = env_or_throw('SUPABASE_PG_POOLER_DSN');
-    $poolerUser = env_or_throw('SUPABASE_PG_POOLER_USER');
-    $poolerPass = env_or_throw('SUPABASE_PG_POOLER_PASSWORD');
+    $useCloud = getenv('SUPABASE_USE_CLOUD') === 'true';
+    $dsnKey = $useCloud ? 'SUPABASE_PG_POOLER_DSN_CLOUD' : 'SUPABASE_PG_POOLER_DSN_LOCAL';
+    $userKey = $useCloud ? 'SUPABASE_PG_POOLER_USER_CLOUD' : 'SUPABASE_PG_POOLER_USER_LOCAL';
+    $passKey = $useCloud ? 'SUPABASE_PG_POOLER_PASSWORD_CLOUD' : 'SUPABASE_PG_POOLER_PASSWORD_LOCAL';
+
+    $poolerDsn = env_or_throw($dsnKey);
+    $poolerUser = env_or_throw($userKey);
+    $poolerPass = env_or_throw($passKey);
 
     $pdo = new PDO($poolerDsn, $poolerUser, $poolerPass, [
         PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,
