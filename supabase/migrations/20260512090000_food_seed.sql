@@ -1,3 +1,6 @@
+-- Seed foods for local Supabase
+-- Source: sql/foods_seed_from_openfoodfacts.sql
+
 -- Auto-generated from importation/import_foods.py
 -- Source: OpenFoodFacts (direct image URLs)
 
@@ -118,4 +121,3 @@ do update set
   serving = excluded.serving,
   image_url = excluded.image_url,
   updated_at = now();
-

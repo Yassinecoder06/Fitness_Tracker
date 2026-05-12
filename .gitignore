@@ -28,8 +28,13 @@ Thumbs.db
 # Generated data exports (regenerate when needed)
 db/foods_export.json
 
+# Local import tooling (kept outside version control)
+importation/
+
 docs/
 
 *.temp
 skills-lock.json
 
+./sql
+./db

@@ -11,7 +11,7 @@ Use `sql/schema.sql` as the source of truth for the Member 4 Food Database schem
 
 ## Seed Data (Member 4)
 
-1. Run `scripts/import_foods.py` in export mode to generate:
+1. Run `importation/import_foods.py` in export mode to generate:
 	- `db/foods_export.json`
 	- `sql/foods_seed_from_openfoodfacts.sql`
 2. Apply `sql/foods_seed_from_openfoodfacts.sql` to insert/upsert food rows.

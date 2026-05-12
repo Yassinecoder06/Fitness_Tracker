@@ -10,7 +10,7 @@ This guide explains how to:
 ## What Is Already Implemented
 
 Updated importer:
-- scripts/import_foods.py
+- importation/import_foods.py
 
 Generated/maintained SQL files:
 - sql/schema.sql
@@ -22,7 +22,7 @@ Generated JSON file:
 ## 1) Prerequisites
 
 - Python 3.10+
-- Virtual environment with dependencies installed from scripts/requirements.txt
+- Virtual environment with dependencies installed from importation/requirements.txt
 - Supabase project (if you want DB import mode)
 
 ## 2) Environment Variables
@@ -69,7 +69,7 @@ From project root:
 
 Windows PowerShell:
 
-c:/Work/Fitness_Tracker/.venv/Scripts/python.exe c:/Work/Fitness_Tracker/scripts/import_foods.py
+c:/Work/Fitness_Tracker/.venv/Scripts/python.exe c:/Work/Fitness_Tracker/importation/import_foods.py
 
 Result files:
 - db/foods_export.json
@@ -109,6 +109,6 @@ Then run importer again. It will:
 ## 8) Recommended Run Order (Member 4)
 
 1. Apply sql/schema.sql
-2. Run scripts/import_foods.py in export mode
+2. Run importation/import_foods.py in export mode
 3. Apply sql/foods_seed_from_openfoodfacts.sql
 4. Verify in food.php UI

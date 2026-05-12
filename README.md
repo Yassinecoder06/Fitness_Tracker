@@ -1,78 +1,76 @@
-# 🏋️ FitTrack
+# FitTrack
 
-A modern, responsive fitness tracking dashboard built with **HTML**, **CSS**, and **Vanilla JavaScript**. Inspired by MyFitnessPal's layout and user experience — no frameworks, no dependencies.
+Food data was webscraped from OpenFoodFacts.
 
-## ✨ Features
+## Prerequisites
 
-- **Dashboard** — Daily calorie summary, macronutrient progress bars, calorie budget ring, meals overview, exercise table
-- **Diary** — Daily food & exercise logs, interactive water intake tracker, personal notes
-- **Food Database** — Searchable food cards with macro info, filter chips, nutrition detail modal
-- **Exercise** — Category cards (Cardio, Strength, Flexibility, Sports), recent activity list, add exercise modal
-- **Progress** — Weight & calorie bar charts, monthly goals progress bars, streak tracking
-- **Goals** — Set target weight, daily calorie target, and weekly workout frequency
+- Docker Desktop running
+- Supabase CLI installed
+- PHP 8+ (for the local web server)
 
-## 🎨 Design
+## Local setup (A to B)
 
-- Clean SaaS dashboard UI with blue accent colors
-- Card-based layout with soft shadows and rounded corners
-- Smooth hover animations and scroll-triggered effects
-- Inter font via Google Fonts
-- Fully responsive: Desktop → Tablet → Mobile (sidebar collapses to hamburger)
+1. Initialize and start Supabase from the project root:
 
-## 📁 Project Structure
+   ```powershell
+   supabase init
+   supabase start
+   ```
 
-```
-Fitness_Tracker/
-├── index.html          # Dashboard
-├── diary.html          # Daily diary
-├── food.html           # Food database
-├── exercise.html       # Exercise tracker
-├── progress.html       # Progress charts
-├── goals.html          # Goal settings
-├── css/
-│   └── style.css       # Complete design system
-├── js/
-│   └── main.js         # All interactions
-└── assets/
-    ├── images/
-    └── icons/
-```
+2. Fetch local service details:
 
-## 🚀 Getting Started
+   ```powershell
+   supabase status
+   ```
 
-```bash
-# Serve locally (no build step needed)
-npx -y serve .
+   You will need:
+   - API URL (usually http://127.0.0.1:54321)
+   - DB URL (usually postgresql://postgres:postgres@127.0.0.1:54322/postgres)
+   - service_role key
 
-# Then open http://localhost:3000
-```
+3. Configure environment variables:
 
-Or simply open `index.html` directly in your browser.
+   ```powershell
+   Copy-Item .env.example .env -Force
+   ```
 
-## 🛠️ Tech Stack
+   Open `.env` and set `SUPABASE_SERVICE_ROLE_KEY` using the value from `supabase status`.
 
-| Layer | Technology |
-|-------|-----------|
-| Structure | Semantic HTML5 |
-| Styling | Vanilla CSS (Grid, Flexbox, Custom Properties) |
-| Interactivity | Vanilla JavaScript (ES6+) |
-| Icons | Inline SVG |
-| Fonts | [Inter](https://fonts.google.com/specimen/Inter) via Google Fonts |
+4. Apply database migrations (schema + seed data):
 
-## 📱 Responsive Breakpoints
+   ```powershell
+   supabase db push
+   ```
 
-| Viewport | Behavior |
-|----------|----------|
-| > 1024px | Full sidebar + multi-column grids |
-| 768–1024px | Adapted grids, narrower search |
-| < 768px | Hamburger menu, single-column layout |
+5. Run the PHP app locally:
 
-## 🗺️ Roadmap
+   ```powershell
+   php -S localhost:8000
+   ```
 
-- **Phase 2 — JavaScript**: BMI calculator, workout timer, form validation, localStorage persistence
-- **Phase 3 — PHP**: User auth, database-backed data, per-user dashboards
-- **Phase 4 — Symfony**: Full MVC with entities (User, Workout, Exercise, Goal), CRUD, API endpoints
+   Open:
+   - http://localhost:8000/index.php
 
-## 📄 License
+## Project structure (quick map)
 
-See [LICENSE](LICENSE) for details.
+- PHP pages are in the project root (for example: index.php, food.php, diary.php).
+- Client assets:
+  - CSS: css/
+  - JS: js/
+- Legacy static HTML pages (reference only): legacy-html/
+- Supabase migrations: supabase/migrations/
+
+## Common Supabase CLI commands
+
+- Start/stop:
+
+  ```powershell
+  supabase start
+  supabase stop
+  ```
+
+- Status:
+
+  ```powershell
+  supabase status
+  ```
