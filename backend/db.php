@@ -5,12 +5,13 @@ require_once __DIR__ . '/bootstrap.php';
 
 function env_or_throw(string $key): string
 {
-    $value = getenv($key);
-    if ($value === false || trim($value) === '') {
+    $value = $_ENV[$key] ?? getenv($key);
+
+    if ($value === false || $value === null || trim((string)$value) === '') {
         throw new RuntimeException("Missing required env var: {$key}");
     }
 
-    return $value;
+    return (string)$value;
 }
 
 function get_pdo(): PDO

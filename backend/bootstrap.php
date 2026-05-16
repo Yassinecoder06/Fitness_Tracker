@@ -12,3 +12,4 @@ require_once $autoloadPath;
 
 $dotenv = Dotenv\Dotenv::createImmutable($projectRoot);
 $dotenv->safeLoad();
+
