@@ -1171,11 +1171,18 @@ img {
   text-align: center;
   cursor: pointer;
   transition: var(--transition);
+  text-decoration: none;
+  color: inherit;
 }
 
 .exercise-category-card:hover {
   box-shadow: var(--shadow-lg);
   transform: translateY(-4px);
+}
+
+.exercise-category-card.active {
+  border-color: var(--primary-light);
+  box-shadow: var(--shadow-md);
 }
 
 .exercise-category-card__icon {
@@ -1197,7 +1204,7 @@ img {
   background: var(--accent-orange-bg);
 }
 
-.exercise-category-card__icon--flexibility {
+.exercise-category-card__icon--calisthenics {
   background: var(--accent-green-bg);
 }
 
@@ -1742,10 +1749,28 @@ img {
   color: var(--gray-500);
 }
 
+.exercise-list__desc {
+  font-size: 12px;
+  color: var(--gray-500);
+  margin-top: 4px;
+  max-width: 520px;
+}
+
 .exercise-list__cals {
   font-size: 14px;
   font-weight: 600;
   color: var(--gray-700);
+}
+
+.exercise-list__action {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+}
+
+.exercise-library__empty {
+  padding: 16px;
+  color: var(--gray-500);
 }
 
 /* ===================================================

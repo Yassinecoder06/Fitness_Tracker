@@ -1,3 +1,107 @@
+<?php
+declare(strict_types=1);
+
+require_once __DIR__ . '/backend/exercise_repository.php';
+
+function e(string $value): string
+{
+    return htmlspecialchars($value, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8');
+}
+
+function is_ajax_request(): bool
+{
+    return isset($_SERVER['HTTP_X_REQUESTED_WITH'])
+        && strtolower((string)$_SERVER['HTTP_X_REQUESTED_WITH']) === 'xmlhttprequest';
+}
+
+function format_log_date(?string $value): string
+{
+    if ($value === null || $value === '') {
+        return 'Today';
+    }
+
+    $date = new DateTimeImmutable($value);
+    $today = new DateTimeImmutable('today');
+    $yesterday = $today->modify('-1 day');
+
+    if ($date->format('Y-m-d') === $today->format('Y-m-d')) {
+        return 'Today';
+    }
+
+    if ($date->format('Y-m-d') === $yesterday->format('Y-m-d')) {
+        return 'Yesterday';
+    }
+
+    return $date->format('M j, Y');
+}
+
+function format_calories($value): string
+{
+    $number = (float)$value;
+    if (abs($number - round($number)) < 0.01) {
+        return (string)(int)round($number);
+    }
+
+    return number_format($number, 1);
+}
+
+$categoryMeta = [
+    'Cardio' => [
+        'icon' => '🏃',
+        'class' => 'exercise-category-card__icon--cardio',
+        'bg' => 'var(--primary-bg)',
+    ],
+    'Strength' => [
+        'icon' => '🏋️',
+        'class' => 'exercise-category-card__icon--strength',
+        'bg' => 'var(--accent-orange-bg)',
+    ],
+    'Calisthenics' => [
+        'icon' => '🤸',
+        'class' => 'exercise-category-card__icon--calisthenics',
+        'bg' => 'var(--accent-green-bg)',
+    ],
+    'Sports' => [
+        'icon' => '⚽',
+        'class' => 'exercise-category-card__icon--sports',
+        'bg' => 'var(--accent-purple-bg)',
+    ],
+];
+
+$error = null;
+
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    try {
+        $created = insert_exercise($_POST);
+        $created['display_date'] = format_log_date($created['logged_at'] ?? null);
+        $created['calories_display'] = format_calories($created['calories_burned'] ?? 0);
+
+        if (is_ajax_request()) {
+            header('Content-Type: application/json');
+            echo json_encode(['ok' => true, 'exercise' => $created]);
+            exit;
+        }
+
+        header('Location: exercise.php');
+        exit;
+    } catch (Throwable $exception) {
+        if (is_ajax_request()) {
+            http_response_code(400);
+            header('Content-Type: application/json');
+            echo json_encode(['ok' => false, 'error' => 'Unable to save exercise.']);
+            exit;
+        }
+
+        $error = 'Unable to save exercise.';
+    }
+}
+
+$categories = EXERCISE_CATEGORIES;
+$selectedCategory = normalize_exercise_category($_GET['category'] ?? null);
+$categoryCounts = fetch_exercise_library_counts();
+$libraryExercises = fetch_exercise_library($selectedCategory);
+$recentExercises = fetch_recent_exercises(5);
+?>
 <!DOCTYPE html>
 <html lang="en">
 
@@ -109,28 +213,66 @@
             <button class="btn btn--primary" data-modal="add-exercise-modal">+ Add Exercise</button>
         </div>
 
+        <?php if ($error !== null): ?>
+            <div class="card card--flat animate-in" style="padding:16px;color:var(--accent-red);">
+                <?= e($error) ?>
+            </div>
+        <?php endif; ?>
+
         <!-- CATEGORY CARDS -->
         <div class="exercise-categories">
-            <div class="exercise-category-card animate-in">
-                <div class="exercise-category-card__icon exercise-category-card__icon--cardio">🏃</div>
-                <div class="exercise-category-card__name">Cardio</div>
-                <div class="exercise-category-card__count">24 exercises</div>
+            <?php foreach ($categories as $category): ?>
+                <?php $meta = $categoryMeta[$category] ?? $categoryMeta['Cardio']; ?>
+                <?php $count = $categoryCounts[$category] ?? 0; ?>
+                <?php $active = $selectedCategory === $category; ?>
+                <a class="exercise-category-card animate-in<?= $active ? ' active' : '' ?>" href="<?= e('exercise.php?category=' . urlencode($category)) ?>" data-category="<?= e($category) ?>">
+                    <div class="exercise-category-card__icon <?= e($meta['class']) ?>"><?= e($meta['icon']) ?></div>
+                    <div class="exercise-category-card__name"><?= e($category) ?></div>
+                    <div class="exercise-category-card__count"><?= e((string)$count) ?> exercises</div>
+                </a>
+            <?php endforeach; ?>
+        </div>
+
+        <!-- EXERCISE LIBRARY -->
+        <div class="card card--flat animate-in">
+            <div class="card__header">
+                <div>
+                    <h2 class="card__title">Choose Exercises</h2>
+                    <p class="card__subtitle">Pick a category first, then log a workout from the list.</p>
+                </div>
             </div>
-            <div class="exercise-category-card animate-in">
-                <div class="exercise-category-card__icon exercise-category-card__icon--strength">🏋️</div>
-                <div class="exercise-category-card__name">Strength</div>
-                <div class="exercise-category-card__count">36 exercises</div>
-            </div>
-            <div class="exercise-category-card animate-in">
-                <div class="exercise-category-card__icon exercise-category-card__icon--flexibility">🧘</div>
-                <div class="exercise-category-card__name">Flexibility</div>
-                <div class="exercise-category-card__count">18 exercises</div>
-            </div>
-            <div class="exercise-category-card animate-in">
-                <div class="exercise-category-card__icon exercise-category-card__icon--sports">⚽</div>
-                <div class="exercise-category-card__name">Sports</div>
-                <div class="exercise-category-card__count">15 exercises</div>
-            </div>
+            <?php if ($selectedCategory === null): ?>
+                <div class="exercise-library__empty">Select a category above to see exercises.</div>
+            <?php elseif (count($libraryExercises) === 0): ?>
+                <div class="exercise-library__empty">No exercises found for <?= e($selectedCategory) ?>.</div>
+            <?php else: ?>
+                <div class="exercise-list">
+                    <?php foreach ($libraryExercises as $exercise): ?>
+                        <?php $meta = $categoryMeta[$exercise['category']] ?? $categoryMeta['Cardio']; ?>
+                        <div class="exercise-list__item">
+                            <div class="exercise-list__left">
+                                <div class="exercise-list__icon" style="background:<?= e($meta['bg']) ?>">
+                                    <?= e($meta['icon']) ?>
+                                </div>
+                                <div>
+                                    <div class="exercise-list__name"><?= e($exercise['name']) ?></div>
+                                    <div class="exercise-list__meta"><?= e($exercise['category']) ?></div>
+                                    <div class="exercise-list__desc"><?= e($exercise['instructions']) ?></div>
+                                </div>
+                            </div>
+                            <div class="exercise-list__action">
+                                <button
+                                    class="btn btn--secondary exercise-log-btn"
+                                    type="button"
+                                    data-exercise-id="<?= e($exercise['id']) ?>"
+                                    data-exercise-name="<?= e($exercise['name']) ?>"
+                                    data-exercise-category="<?= e($exercise['category']) ?>"
+                                >Log</button>
+                            </div>
+                        </div>
+                    <?php endforeach; ?>
+                </div>
+            <?php endif; ?>
         </div>
 
         <!-- RECENT EXERCISES -->
@@ -141,57 +283,30 @@
                     <p class="card__subtitle">Your latest logged activities</p>
                 </div>
             </div>
-            <div class="exercise-list">
-                <div class="exercise-list__item">
-                    <div class="exercise-list__left">
-                        <div class="exercise-list__icon" style="background:var(--primary-bg)">🏃</div>
-                        <div>
-                            <div class="exercise-list__name">Morning Run</div>
-                            <div class="exercise-list__meta">Cardio · 35 min · Today</div>
-                        </div>
+            <div class="exercise-list" id="exercise-list">
+                <?php if (count($recentExercises) === 0): ?>
+                    <div id="exercise-empty" style="padding:16px;color:var(--gray-500);">
+                        No exercises logged yet. Add your first workout.
                     </div>
-                    <div class="exercise-list__cals">380 kcal</div>
-                </div>
-                <div class="exercise-list__item">
-                    <div class="exercise-list__left">
-                        <div class="exercise-list__icon" style="background:var(--accent-orange-bg)">🏋️</div>
-                        <div>
-                            <div class="exercise-list__name">Weight Training</div>
-                            <div class="exercise-list__meta">Strength · 45 min · Today</div>
+                <?php endif; ?>
+                <?php foreach ($recentExercises as $exercise): ?>
+                    <?php $meta = $categoryMeta[$exercise['category']] ?? $categoryMeta['Cardio']; ?>
+                    <div class="exercise-list__item">
+                        <div class="exercise-list__left">
+                            <div class="exercise-list__icon" style="background:<?= e($meta['bg']) ?>">
+                                <?= e($meta['icon']) ?>
+                            </div>
+                            <div>
+                                <div class="exercise-list__name"><?= e($exercise['name']) ?></div>
+                                <div class="exercise-list__meta">
+                                    <?= e($exercise['category']) ?> · <?= e((string)$exercise['duration_minutes']) ?> min ·
+                                    <?= e(format_log_date($exercise['logged_at'] ?? null)) ?>
+                                </div>
+                            </div>
                         </div>
+                        <div class="exercise-list__cals"><?= e(format_calories($exercise['calories_burned'])) ?> kcal</div>
                     </div>
-                    <div class="exercise-list__cals">220 kcal</div>
-                </div>
-                <div class="exercise-list__item">
-                    <div class="exercise-list__left">
-                        <div class="exercise-list__icon" style="background:var(--accent-green-bg)">🧘</div>
-                        <div>
-                            <div class="exercise-list__name">Yoga</div>
-                            <div class="exercise-list__meta">Flexibility · 20 min · Today</div>
-                        </div>
-                    </div>
-                    <div class="exercise-list__cals">80 kcal</div>
-                </div>
-                <div class="exercise-list__item">
-                    <div class="exercise-list__left">
-                        <div class="exercise-list__icon" style="background:var(--primary-bg)">🚴</div>
-                        <div>
-                            <div class="exercise-list__name">Cycling</div>
-                            <div class="exercise-list__meta">Cardio · 40 min · Yesterday</div>
-                        </div>
-                    </div>
-                    <div class="exercise-list__cals">320 kcal</div>
-                </div>
-                <div class="exercise-list__item">
-                    <div class="exercise-list__left">
-                        <div class="exercise-list__icon" style="background:var(--accent-purple-bg)">🏊</div>
-                        <div>
-                            <div class="exercise-list__name">Swimming</div>
-                            <div class="exercise-list__meta">Cardio · 30 min · Yesterday</div>
-                        </div>
-                    </div>
-                    <div class="exercise-list__cals">280 kcal</div>
-                </div>
+                <?php endforeach; ?>
             </div>
         </div>
     </main>
@@ -201,39 +316,39 @@
         <div class="modal">
             <div class="modal__header">
                 <h2 class="modal__title">Add Exercise</h2>
-                <button class="modal__close"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                <button class="modal__close" type="button"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
                         stroke-linecap="round">
                         <line x1="18" y1="6" x2="6" y2="18" />
                         <line x1="6" y1="6" x2="18" y2="18" />
                     </svg></button>
             </div>
-            <div class="modal__body">
+            <form class="modal__body" id="exercise-form" method="post" action="exercise.php">
+                <input type="hidden" name="exercise_id" id="exercise-id" value="">
                 <div class="form-group">
-                    <label class="form-label">Exercise Name</label>
-                    <input class="form-input" type="text" placeholder="e.g. Running, Push-ups">
+                    <label class="form-label" for="exercise-name">Exercise Name</label>
+                    <input class="form-input" id="exercise-name" name="name" type="text" placeholder="e.g. Running, Push-ups" required maxlength="80">
                 </div>
                 <div class="form-group">
-                    <label class="form-label">Category</label>
-                    <select class="form-select">
-                        <option>Cardio</option>
-                        <option>Strength</option>
-                        <option>Flexibility</option>
-                        <option>Sports</option>
+                    <label class="form-label" for="exercise-category">Category</label>
+                    <select class="form-select" id="exercise-category" name="category" required>
+                        <?php foreach ($categories as $category): ?>
+                            <option value="<?= e($category) ?>"><?= e($category) ?></option>
+                        <?php endforeach; ?>
                     </select>
                 </div>
                 <div class="form-group">
-                    <label class="form-label">Duration (minutes)</label>
-                    <input class="form-input" type="number" placeholder="30" min="1">
+                    <label class="form-label" for="exercise-duration">Duration (minutes)</label>
+                    <input class="form-input" id="exercise-duration" name="duration_minutes" type="number" placeholder="30" min="1" max="600" required>
                 </div>
                 <div class="form-group">
-                    <label class="form-label">Calories Burned</label>
-                    <input class="form-input" type="number" placeholder="200" min="0">
+                    <label class="form-label" for="exercise-calories">Calories Burned</label>
+                    <input class="form-input" id="exercise-calories" name="calories_burned" type="number" placeholder="200" min="0" max="5000" step="0.1" required>
                 </div>
-            </div>
-            <div class="modal__footer">
-                <button class="btn btn--secondary modal-cancel">Cancel</button>
-                <button class="btn btn--primary btn--save">Save Exercise</button>
-            </div>
+                <div class="modal__footer">
+                    <button class="btn btn--secondary modal-cancel" type="button">Cancel</button>
+                    <button class="btn btn--primary btn--save" type="submit">Save Exercise</button>
+                </div>
+            </form>
         </div>
     </div>
 
