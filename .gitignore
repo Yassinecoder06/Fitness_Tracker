@@ -1,3 +1,43 @@
 *.pdf
 *.tex
 *.env
+*.ps
+
+# Environment variables and secrets
+.env
+.env.*
+!.env.example
+
+# Python virtual environment and caches
+.venv/
+__pycache__/
+*.py[cod]
+.pytest_cache/
+
+# PHP Composer dependencies
+vendor/
+
+# VS Code local workspace settings (keep shared settings if needed)
+.vscode/
+!.vscode/settings.json
+.agents/
+
+# OS artifacts
+Thumbs.db
+.DS_Store
+
+# Generated data exports (regenerate when needed)
+db/foods_export.json
+
+# Local import tooling (kept outside version control)
+importation/
+
+docs/
+
+*.temp
+skills-lock.json
+
+sql
+db
+
+scrape.py

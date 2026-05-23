@@ -1,8 +1,8 @@
 <?php
-require 'config/db_postgres_env.php';
+require_once __DIR__ . '/backend/db.php';
 
 $user_id = 1; // hardcoded until auth is integrated
-$pdo = getDBConnection();
+$pdo = get_pdo();
 $success = false;
 
 // Handle POST - upsert goals
@@ -25,81 +25,229 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 $stmt = $pdo->prepare("SELECT * FROM goals WHERE user_id = ?");
 $stmt->execute([$user_id]);
 $goals = $stmt->fetch();
+
+$curr_weight = $goals['target_weight'] ?? '';
+$curr_cals = $goals['daily_calories'] ?? '';
+$curr_workouts = $goals['weekly_workouts'] ?? '';
 ?>
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>My Goals — FitTrack</title>
-    <link rel="stylesheet" href="assets/css/style.css">
+    <meta name="description" content="FitTrack Goals — Set your weight, calorie, and workout targets.">
+    <title>FitTrack | Goals</title>
+    <link rel="stylesheet" href="css/style.css">
 </head>
+
 <body>
-    <div class="container" style="padding: 32px 0;">
-        <h1 class="page-header">My Fitness Goals</h1>
+
+    <!-- NAVBAR -->
+    <nav class="navbar">
+        <div class="navbar__left">
+            <button class="navbar__hamburger" aria-label="Toggle menu">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+                    <line x1="3" y1="6" x2="21" y2="6" />
+                    <line x1="3" y1="12" x2="21" y2="12" />
+                    <line x1="3" y1="18" x2="21" y2="18" />
+                </svg>
+            </button>
+            <a href="index.php" class="navbar__logo">
+                <div class="navbar__logo-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                        stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M18 20V10" />
+                        <path d="M12 20V4" />
+                        <path d="M6 20v-6" />
+                    </svg></div>
+                FitTrack
+            </a>
+        </div>
+        <div class="navbar__search">
+            <svg class="navbar__search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                stroke-linecap="round">
+                <circle cx="11" cy="11" r="8" />
+                <line x1="21" y1="21" x2="16.65" y2="16.65" />
+            </svg>
+            <input type="text" placeholder="Search food, exercises, goals...">
+        </div>
+        <div class="navbar__right">
+            <button class="navbar__icon-btn" aria-label="Notifications">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                    stroke-linejoin="round">
+                    <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9" />
+                    <path d="M13.73 21a2 2 0 0 1-3.46 0" />
+                </svg>
+                <span class="navbar__badge"></span>
+            </button>
+            <div class="navbar__avatar" title="User">JD</div>
+        </div>
+    </nav>
+
+    <!-- SIDEBAR -->
+    <div class="sidebar-overlay"></div>
+    <aside class="sidebar">
+        <nav class="sidebar__nav">
+            <span class="sidebar__section-title">Menu</span>
+            <a href="index.php" class="sidebar__link"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                    stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <rect x="3" y="3" width="7" height="7" rx="1" />
+                    <rect x="14" y="3" width="7" height="7" rx="1" />
+                    <rect x="3" y="14" width="7" height="7" rx="1" />
+                    <rect x="14" y="14" width="7" height="7" rx="1" />
+                </svg> Dashboard</a>
+            <a href="diary.php" class="sidebar__link"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                    stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20" />
+                    <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z" />
+                </svg> Diary</a>
+            <a href="food.php" class="sidebar__link"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                    stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M18 8h1a4 4 0 0 1 0 8h-1" />
+                    <path d="M2 8h16v9a4 4 0 0 1-4 4H6a4 4 0 0 1-4-4V8z" />
+                    <line x1="6" y1="1" x2="6" y2="4" />
+                    <line x1="10" y1="1" x2="10" y2="4" />
+                    <line x1="14" y1="1" x2="14" y2="4" />
+                </svg> Food</a>
+            <a href="exercise.php" class="sidebar__link"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                    stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M14.4 14.4L9.6 9.6" />
+                    <path
+                        d="M18.657 21.485a2 2 0 1 1-2.829-2.828l-1.767-1.768a2 2 0 1 1-2.829-2.829l-1.767-1.767a2 2 0 1 1-2.829-2.829L4.869 7.697a2 2 0 1 1 2.828-2.829l1.768 1.768a2 2 0 1 1 2.828 2.829l1.768 1.767a2 2 0 1 1 2.828 2.829l1.768 1.767a2 2 0 1 1-2.828 2.829z" />
+                </svg> Exercise</a>
+            <span class="sidebar__section-title">Analytics</span>
+            <a href="progress.php" class="sidebar__link"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                    stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <line x1="18" y1="20" x2="18" y2="10" />
+                    <line x1="12" y1="20" x2="12" y2="4" />
+                    <line x1="6" y1="20" x2="6" y2="14" />
+                </svg> Progress</a>
+            <a href="goals.php" class="sidebar__link active"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                    stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <circle cx="12" cy="12" r="10" />
+                    <circle cx="12" cy="12" r="6" />
+                    <circle cx="12" cy="12" r="2" />
+                </svg> Goals</a>
+        </nav>
+    </aside>
+
+    <!-- MAIN -->
+    <main class="main">
+        <div class="main__header">
+            <h1 class="main__title">Goals</h1>
+            <p class="main__subtitle">Set and manage your fitness targets</p>
+        </div>
 
         <form method="POST" action="goals.php" id="goalsForm">
-            <div class="grid-2">
-                <div class="card">
-                    <div class="form-group">
-                        <label for="target_weight">Target Weight</label>
-                        <input
-                            id="target_weight"
-                            name="target_weight"
-                            type="number"
-                            class="form-input"
-                            value="<?= htmlspecialchars((string) ($goals['target_weight'] ?? ''), ENT_QUOTES, 'UTF-8') ?>"
-                        >
+            <div class="goals-grid">
+                <!-- Target Weight -->
+                <div class="goal-card animate-in">
+                    <div class="goal-card__icon" style="background: var(--primary-bg)">⚖️</div>
+                    <h2 class="goal-card__title">Target Weight</h2>
+                    <p class="goal-card__desc">Set your ideal body weight goal. We'll help you track your progress towards
+                        it.</p>
+                    <div class="goal-card__current">
+                        <span class="goal-card__current-label">Current target</span>
+                        <span class="goal-card__current-value"><?= $curr_weight ? $curr_weight . ' kg' : 'Not set' ?></span>
                     </div>
+                    <div class="form-group">
+                        <label class="form-label" for="target_weight">Target Weight (kg)</label>
+                        <input class="form-input" type="number" id="target_weight" name="target_weight" placeholder="75" value="<?= htmlspecialchars((string)$curr_weight) ?>">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Timeline</label>
+                        <select class="form-select">
+                            <option>1 month</option>
+                            <option selected>2 months</option>
+                            <option>3 months</option>
+                            <option>6 months</option>
+                        </select>
+                    </div>
+                    <button type="submit" class="btn btn--primary btn--block">Save Goal</button>
                 </div>
 
-                <div class="card">
-                    <div class="form-group">
-                        <label for="daily_calories">Daily Calorie Target</label>
-                        <input
-                            id="daily_calories"
-                            name="daily_calories"
-                            type="number"
-                            class="form-input"
-                            value="<?= htmlspecialchars((string) ($goals['daily_calories'] ?? ''), ENT_QUOTES, 'UTF-8') ?>"
-                        >
+                <!-- Daily Calorie Target -->
+                <div class="goal-card animate-in">
+                    <div class="goal-card__icon" style="background: var(--accent-green-bg)">🔥</div>
+                    <h2 class="goal-card__title">Daily Calorie Target</h2>
+                    <p class="goal-card__desc">Set your daily calorie intake goal to align with your weight objectives.</p>
+                    <div class="goal-card__current">
+                        <span class="goal-card__current-label">Current target</span>
+                        <span class="goal-card__current-value"><?= $curr_cals ? number_format($curr_cals) . ' kcal' : 'Not set' ?></span>
                     </div>
+                    <div class="form-group">
+                        <label class="form-label" for="daily_calories">Daily Calorie Goal (kcal)</label>
+                        <input class="form-input" type="number" id="daily_calories" name="daily_calories" placeholder="2700" value="<?= htmlspecialchars((string)$curr_cals) ?>">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Goal Type</label>
+                        <select class="form-select">
+                            <option>Lose Weight</option>
+                            <option selected>Maintain Weight</option>
+                            <option>Gain Weight</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Activity Level</label>
+                        <select class="form-select">
+                            <option>Sedentary</option>
+                            <option>Lightly Active</option>
+                            <option selected>Moderately Active</option>
+                            <option>Very Active</option>
+                        </select>
+                    </div>
+                    <button type="submit" class="btn btn--primary btn--block">Save Goal</button>
                 </div>
 
-                <div class="card">
-                    <div class="form-group">
-                        <label for="weekly_workouts">Weekly Workout Target</label>
-                        <input
-                            id="weekly_workouts"
-                            name="weekly_workouts"
-                            type="number"
-                            class="form-input"
-                            value="<?= htmlspecialchars((string) ($goals['weekly_workouts'] ?? ''), ENT_QUOTES, 'UTF-8') ?>"
-                        >
+                <!-- Workout Frequency -->
+                <div class="goal-card animate-in">
+                    <div class="goal-card__icon" style="background: var(--accent-orange-bg)">💪</div>
+                    <h2 class="goal-card__title">Weekly Workout Frequency</h2>
+                    <p class="goal-card__desc">Define how many workouts you want to complete each week.</p>
+                    <div class="goal-card__current">
+                        <span class="goal-card__current-label">Current target</span>
+                        <span class="goal-card__current-value"><?= $curr_workouts ? $curr_workouts . 'x / week' : 'Not set' ?></span>
                     </div>
+                    <div class="form-group">
+                        <label class="form-label" for="weekly_workouts">Workouts Per Week</label>
+                        <input class="form-input" type="number" id="weekly_workouts" name="weekly_workouts" placeholder="5" value="<?= htmlspecialchars((string)$curr_workouts) ?>" min="1" max="7">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Preferred Workout Duration</label>
+                        <select class="form-select">
+                            <option>15 minutes</option>
+                            <option>30 minutes</option>
+                            <option selected>45 minutes</option>
+                            <option>60 minutes</option>
+                            <option>90 minutes</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Focus Area</label>
+                        <select class="form-select">
+                            <option>Full Body</option>
+                            <option selected>Mixed (Cardio + Strength)</option>
+                            <option>Cardio Only</option>
+                            <option>Strength Only</option>
+                        </select>
+                    </div>
+                    <button type="submit" class="btn btn--primary btn--block">Save Goal</button>
                 </div>
-            </div>
-
-            <div style="margin-top: 24px;">
-                <button type="submit" class="btn" id="saveGoalsBtn">Save Goals</button>
             </div>
         </form>
+    </main>
 
-        <div class="toast" id="successToast">✅ Goals saved successfully!</div>
-    </div>
-
-    <script src="assets/js/goals.js"></script>
+    <script src="js/main.js"></script>
 
     <?php if ($success): ?>
     <script>
-        const toast = document.getElementById('successToast');
-        if (toast) {
-            toast.classList.add('show');
-            setTimeout(() => {
-                toast.classList.remove('show');
-            }, 3000);
-        }
+        document.addEventListener('DOMContentLoaded', () => {
+            if (typeof showToast === 'function') {
+                showToast('✅ Goals saved successfully!');
+            }
+        });
     </script>
     <?php endif; ?>
 </body>
+
 </html>
