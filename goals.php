@@ -1,3 +1,35 @@
+<?php
+require_once __DIR__ . '/backend/db.php';
+
+$user_id = 1; // hardcoded until auth is integrated
+$pdo = get_pdo();
+$success = false;
+
+// Handle POST - upsert goals
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    $target_weight = intval($_POST['target_weight'] ?? 0);
+    $daily_calories = intval($_POST['daily_calories'] ?? 0);
+    $weekly_workouts = intval($_POST['weekly_workouts'] ?? 0);
+
+    $stmt = $pdo->prepare("INSERT INTO goals (user_id, target_weight, daily_calories, weekly_workouts)
+        VALUES (?, ?, ?, ?)
+        ON CONFLICT (user_id) DO UPDATE SET
+        target_weight = EXCLUDED.target_weight,
+        daily_calories = EXCLUDED.daily_calories,
+        weekly_workouts = EXCLUDED.weekly_workouts");
+    $stmt->execute([$user_id, $target_weight, $daily_calories, $weekly_workouts]);
+    $success = true;
+}
+
+// Fetch current goals for pre-fill
+$stmt = $pdo->prepare("SELECT * FROM goals WHERE user_id = ?");
+$stmt->execute([$user_id]);
+$goals = $stmt->fetch();
+
+$curr_weight = $goals['target_weight'] ?? '';
+$curr_cals = $goals['daily_calories'] ?? '';
+$curr_workouts = $goals['weekly_workouts'] ?? '';
+?>
 <!DOCTYPE html>
 <html lang="en">
 
@@ -106,108 +138,116 @@
             <p class="main__subtitle">Set and manage your fitness targets</p>
         </div>
 
-        <div class="goals-grid">
-            <!-- Target Weight -->
-            <div class="goal-card animate-in">
-                <div class="goal-card__icon" style="background: var(--primary-bg)">⚖️</div>
-                <h2 class="goal-card__title">Target Weight</h2>
-                <p class="goal-card__desc">Set your ideal body weight goal. We'll help you track your progress towards
-                    it.</p>
-                <div class="goal-card__current">
-                    <span class="goal-card__current-label">Current target</span>
-                    <span class="goal-card__current-value">75 kg</span>
+        <form method="POST" action="goals.php" id="goalsForm">
+            <div class="goals-grid">
+                <!-- Target Weight -->
+                <div class="goal-card animate-in">
+                    <div class="goal-card__icon" style="background: var(--primary-bg)">⚖️</div>
+                    <h2 class="goal-card__title">Target Weight</h2>
+                    <p class="goal-card__desc">Set your ideal body weight goal. We'll help you track your progress towards
+                        it.</p>
+                    <div class="goal-card__current">
+                        <span class="goal-card__current-label">Current target</span>
+                        <span class="goal-card__current-value"><?= $curr_weight ? $curr_weight . ' kg' : 'Not set' ?></span>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label" for="target_weight">Target Weight (kg)</label>
+                        <input class="form-input" type="number" id="target_weight" name="target_weight" placeholder="75" value="<?= htmlspecialchars((string)$curr_weight) ?>">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Timeline</label>
+                        <select class="form-select">
+                            <option>1 month</option>
+                            <option selected>2 months</option>
+                            <option>3 months</option>
+                            <option>6 months</option>
+                        </select>
+                    </div>
+                    <button type="submit" class="btn btn--primary btn--block">Save Goal</button>
                 </div>
-                <div class="form-group">
-                    <label class="form-label">Current Weight (kg)</label>
-                    <input class="form-input" type="number" placeholder="78" value="78">
-                </div>
-                <div class="form-group">
-                    <label class="form-label">Target Weight (kg)</label>
-                    <input class="form-input" type="number" placeholder="75" value="75">
-                </div>
-                <div class="form-group">
-                    <label class="form-label">Timeline</label>
-                    <select class="form-select">
-                        <option>1 month</option>
-                        <option selected>2 months</option>
-                        <option>3 months</option>
-                        <option>6 months</option>
-                    </select>
-                </div>
-                <button class="btn btn--primary btn--block btn--save">Save Goal</button>
-            </div>
 
-            <!-- Daily Calorie Target -->
-            <div class="goal-card animate-in">
-                <div class="goal-card__icon" style="background: var(--accent-green-bg)">🔥</div>
-                <h2 class="goal-card__title">Daily Calorie Target</h2>
-                <p class="goal-card__desc">Set your daily calorie intake goal to align with your weight objectives.</p>
-                <div class="goal-card__current">
-                    <span class="goal-card__current-label">Current target</span>
-                    <span class="goal-card__current-value">2,700 kcal</span>
+                <!-- Daily Calorie Target -->
+                <div class="goal-card animate-in">
+                    <div class="goal-card__icon" style="background: var(--accent-green-bg)">🔥</div>
+                    <h2 class="goal-card__title">Daily Calorie Target</h2>
+                    <p class="goal-card__desc">Set your daily calorie intake goal to align with your weight objectives.</p>
+                    <div class="goal-card__current">
+                        <span class="goal-card__current-label">Current target</span>
+                        <span class="goal-card__current-value"><?= $curr_cals ? number_format($curr_cals) . ' kcal' : 'Not set' ?></span>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label" for="daily_calories">Daily Calorie Goal (kcal)</label>
+                        <input class="form-input" type="number" id="daily_calories" name="daily_calories" placeholder="2700" value="<?= htmlspecialchars((string)$curr_cals) ?>">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Goal Type</label>
+                        <select class="form-select">
+                            <option>Lose Weight</option>
+                            <option selected>Maintain Weight</option>
+                            <option>Gain Weight</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Activity Level</label>
+                        <select class="form-select">
+                            <option>Sedentary</option>
+                            <option>Lightly Active</option>
+                            <option selected>Moderately Active</option>
+                            <option>Very Active</option>
+                        </select>
+                    </div>
+                    <button type="submit" class="btn btn--primary btn--block">Save Goal</button>
                 </div>
-                <div class="form-group">
-                    <label class="form-label">Daily Calorie Goal (kcal)</label>
-                    <input class="form-input" type="number" placeholder="2700" value="2700">
-                </div>
-                <div class="form-group">
-                    <label class="form-label">Goal Type</label>
-                    <select class="form-select">
-                        <option>Lose Weight</option>
-                        <option selected>Maintain Weight</option>
-                        <option>Gain Weight</option>
-                    </select>
-                </div>
-                <div class="form-group">
-                    <label class="form-label">Activity Level</label>
-                    <select class="form-select">
-                        <option>Sedentary</option>
-                        <option>Lightly Active</option>
-                        <option selected>Moderately Active</option>
-                        <option>Very Active</option>
-                    </select>
-                </div>
-                <button class="btn btn--primary btn--block btn--save">Save Goal</button>
-            </div>
 
-            <!-- Workout Frequency -->
-            <div class="goal-card animate-in">
-                <div class="goal-card__icon" style="background: var(--accent-orange-bg)">💪</div>
-                <h2 class="goal-card__title">Weekly Workout Frequency</h2>
-                <p class="goal-card__desc">Define how many workouts you want to complete each week.</p>
-                <div class="goal-card__current">
-                    <span class="goal-card__current-label">Current target</span>
-                    <span class="goal-card__current-value">5x / week</span>
+                <!-- Workout Frequency -->
+                <div class="goal-card animate-in">
+                    <div class="goal-card__icon" style="background: var(--accent-orange-bg)">💪</div>
+                    <h2 class="goal-card__title">Weekly Workout Frequency</h2>
+                    <p class="goal-card__desc">Define how many workouts you want to complete each week.</p>
+                    <div class="goal-card__current">
+                        <span class="goal-card__current-label">Current target</span>
+                        <span class="goal-card__current-value"><?= $curr_workouts ? $curr_workouts . 'x / week' : 'Not set' ?></span>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label" for="weekly_workouts">Workouts Per Week</label>
+                        <input class="form-input" type="number" id="weekly_workouts" name="weekly_workouts" placeholder="5" value="<?= htmlspecialchars((string)$curr_workouts) ?>" min="1" max="7">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Preferred Workout Duration</label>
+                        <select class="form-select">
+                            <option>15 minutes</option>
+                            <option>30 minutes</option>
+                            <option selected>45 minutes</option>
+                            <option>60 minutes</option>
+                            <option>90 minutes</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Focus Area</label>
+                        <select class="form-select">
+                            <option>Full Body</option>
+                            <option selected>Mixed (Cardio + Strength)</option>
+                            <option>Cardio Only</option>
+                            <option>Strength Only</option>
+                        </select>
+                    </div>
+                    <button type="submit" class="btn btn--primary btn--block">Save Goal</button>
                 </div>
-                <div class="form-group">
-                    <label class="form-label">Workouts Per Week</label>
-                    <input class="form-input" type="number" placeholder="5" value="5" min="1" max="7">
-                </div>
-                <div class="form-group">
-                    <label class="form-label">Preferred Workout Duration</label>
-                    <select class="form-select">
-                        <option>15 minutes</option>
-                        <option>30 minutes</option>
-                        <option selected>45 minutes</option>
-                        <option>60 minutes</option>
-                        <option>90 minutes</option>
-                    </select>
-                </div>
-                <div class="form-group">
-                    <label class="form-label">Focus Area</label>
-                    <select class="form-select">
-                        <option>Full Body</option>
-                        <option selected>Mixed (Cardio + Strength)</option>
-                        <option>Cardio Only</option>
-                        <option>Strength Only</option>
-                    </select>
-                </div>
-                <button class="btn btn--primary btn--block btn--save">Save Goal</button>
             </div>
-        </div>
+        </form>
     </main>
 
     <script src="js/main.js"></script>
+
+    <?php if ($success): ?>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            if (typeof showToast === 'function') {
+                showToast('✅ Goals saved successfully!');
+            }
+        });
+    </script>
+    <?php endif; ?>
 </body>
 
 </html>

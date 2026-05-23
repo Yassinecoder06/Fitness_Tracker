@@ -1,5 +1,6 @@
 *.pdf
 *.tex
+*.env
 *.ps
 
 # Environment variables and secrets
@@ -38,3 +39,5 @@ skills-lock.json
 
 sql
 db
+
+scrape.py

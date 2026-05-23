@@ -12,6 +12,7 @@ document.addEventListener('DOMContentLoaded', () => {
   initWaterTracker();
   initModals();
   initCountUp();
+  initExerciseForm();
 });
 
 /* ---------------------------------------------------
@@ -259,6 +260,144 @@ function initChartBars() {
   });
 }
 
+/* ---------------------------------------------------
+   EXERCISE FORM — Submit + Update List
+   --------------------------------------------------- */
+function initExerciseForm() {
+  const form = document.getElementById('exercise-form');
+  if (!form) return;
+
+  const list = document.getElementById('exercise-list');
+  const modal = document.getElementById('add-exercise-modal');
+
+  const categoryMeta = {
+    Cardio: { emoji: '🏃', bg: 'var(--primary-bg)' },
+    Strength: { emoji: '🏋️', bg: 'var(--accent-orange-bg)' },
+    Calisthenics: { emoji: '🤸', bg: 'var(--accent-green-bg)' },
+    Sports: { emoji: '⚽', bg: 'var(--accent-purple-bg)' }
+  };
+
+  const nameInput = document.getElementById('exercise-name');
+  const categorySelect = document.getElementById('exercise-category');
+  const exerciseIdInput = document.getElementById('exercise-id');
+
+  document.querySelectorAll('.exercise-log-btn').forEach((button) => {
+    button.addEventListener('click', () => {
+      if (!nameInput || !categorySelect) return;
+
+      const name = button.getAttribute('data-exercise-name') || '';
+      const category = button.getAttribute('data-exercise-category') || '';
+      const exerciseId = button.getAttribute('data-exercise-id') || '';
+
+      nameInput.value = name;
+      if (category) {
+        categorySelect.value = category;
+      }
+      if (exerciseIdInput) {
+        exerciseIdInput.value = exerciseId;
+      }
+
+      if (modal) {
+        modal.classList.add('active');
+        document.body.style.overflow = 'hidden';
+      }
+    });
+  });
+
+  form.addEventListener('submit', async (event) => {
+    event.preventDefault();
+
+    const formData = new FormData(form);
+
+    try {
+      const response = await fetch(form.action || 'exercise.php', {
+        method: 'POST',
+        headers: { 'X-Requested-With': 'XMLHttpRequest' },
+        body: formData
+      });
+
+      const payload = await response.json();
+      if (!response.ok || !payload.ok) {
+        throw new Error(payload.error || 'Unable to save exercise');
+      }
+
+      const exercise = payload.exercise || {};
+      const html = buildExerciseItem(exercise, categoryMeta);
+      const empty = document.getElementById('exercise-empty');
+      if (empty) empty.remove();
+
+      if (list && html) {
+        list.insertAdjacentHTML('afterbegin', html);
+      }
+
+      updateExerciseCount(exercise.category);
+      form.reset();
+
+      if (typeof showToast === 'function') {
+        showToast('✓ Changes saved successfully!');
+      }
+
+      if (modal) {
+        modal.classList.remove('active');
+        document.body.style.overflow = '';
+      }
+    } catch (error) {
+      alert('Could not save exercise. Please try again.');
+    }
+  });
+}
+
+function buildExerciseItem(exercise, categoryMeta) {
+  const category = exercise.category || 'Cardio';
+  const meta = categoryMeta[category] || categoryMeta.Cardio;
+  const duration = parseInt(exercise.duration_minutes, 10) || 0;
+  const dateLabel = exercise.display_date || 'Today';
+  const calories = exercise.calories_display || exercise.calories_burned || 0;
+
+  return `
+    <div class="exercise-list__item">
+      <div class="exercise-list__left">
+        <div class="exercise-list__icon" style="background:${meta.bg}">${meta.emoji}</div>
+        <div>
+          <div class="exercise-list__name">${escapeHtml(exercise.name || 'New Exercise')}</div>
+          <div class="exercise-list__meta">${escapeHtml(category)} · ${duration} min · ${escapeHtml(dateLabel)}</div>
+        </div>
+      </div>
+      <div class="exercise-list__cals">${escapeHtml(String(calories))} kcal</div>
+    </div>
+  `;
+}
+
+function updateExerciseCount(category) {
+  if (!category) return;
+  const selector = `.exercise-category-card[data-category="${escapeSelector(category)}"]`;
+  const card = document.querySelector(selector);
+  if (!card) return;
+
+  const countEl = card.querySelector('.exercise-category-card__count');
+  if (!countEl) return;
+
+  const current = parseInt(countEl.textContent, 10);
+  const next = Number.isFinite(current) ? current + 1 : 1;
+  countEl.textContent = `${next} exercises`;
+}
+
+function escapeSelector(value) {
+  if (window.CSS && CSS.escape) {
+    return CSS.escape(value);
+  }
+  return String(value).replace(/"/g, '\\"');
+}
+
+function escapeHtml(value) {
+  return String(value)
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#39;');
+}
+
 // Also init chart bars on load
 document.addEventListener('DOMContentLoaded', initChartBars);
 
@@ -317,7 +456,51 @@ function showToast(message) {
 // Attach to save buttons
 document.addEventListener('click', (e) => {
   if (e.target.classList.contains('btn--save')) {
+    const button = e.target;
+    if (button.closest('form')) {
+      return;
+    }
     e.preventDefault();
     showToast('✓ Changes saved successfully!');
+  }
+});
+
+/* ---------------------------------------------------
+   GOALS FORM VALIDATION
+   --------------------------------------------------- */
+document.addEventListener('DOMContentLoaded', () => {
+  const goalsForm = document.getElementById('goalsForm');
+  if (goalsForm) {
+      goalsForm.addEventListener('submit', (e) => {
+          let isValid = true;
+
+          const validateField = (id, min, max, errorMsg) => {
+              const el = document.getElementById(id);
+              if (!el) return;
+              const val = parseFloat(el.value);
+              if (isNaN(val) || val < min || val > max) {
+                  el.style.borderColor = 'var(--accent-red, #EF4444)';
+                  if (isValid) showToast(`❌ ${errorMsg}`);
+                  isValid = false;
+              } else {
+                  el.style.borderColor = '';
+              }
+          };
+
+          validateField('target_weight', 20, 300, 'Weight must be between 20 and 300 kg');
+          validateField('daily_calories', 500, 10000, 'Calories must be between 500 and 10000');
+          validateField('weekly_workouts', 0, 28, 'Workouts must be between 0 and 28');
+
+          if (!isValid) {
+              e.preventDefault();
+          }
+      });
+
+      // Clear error style on input
+      goalsForm.querySelectorAll('input').forEach(input => {
+          input.addEventListener('input', function() {
+              this.style.borderColor = '';
+          });
+      });
   }
 });

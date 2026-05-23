@@ -3,11 +3,20 @@ declare(strict_types=1);
 
 require_once __DIR__ . '/bootstrap.php';
 
+function env_value(string $key, string $default = ''): string
+{
+    $value = getenv($key);
+    if ($value === false || trim($value) === '') {
+        $value = $_ENV[$key] ?? $_SERVER[$key] ?? $default;
+    }
+
+    return (string)$value;
+}
+
 function env_or_throw(string $key): string
 {
-    $value = $_ENV[$key] ?? getenv($key);
-
-    if ($value === false || $value === null || trim((string)$value) === '') {
+    $value = env_value($key);
+    if (trim($value) === '') {
         throw new RuntimeException("Missing required env var: {$key}");
     }
 
@@ -22,7 +31,7 @@ function get_pdo(): PDO
         return $pdo;
     }
 
-    $useCloud = getenv('SUPABASE_USE_CLOUD') === 'true';
+    $useCloud = env_value('SUPABASE_USE_CLOUD') === 'true';
     $dsnKey = $useCloud ? 'SUPABASE_PG_POOLER_DSN_CLOUD' : 'SUPABASE_PG_POOLER_DSN_LOCAL';
     $userKey = $useCloud ? 'SUPABASE_PG_POOLER_USER_CLOUD' : 'SUPABASE_PG_POOLER_USER_LOCAL';
     $passKey = $useCloud ? 'SUPABASE_PG_POOLER_PASSWORD_CLOUD' : 'SUPABASE_PG_POOLER_PASSWORD_LOCAL';

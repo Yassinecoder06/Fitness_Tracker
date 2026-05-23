@@ -1,3 +1,46 @@
+<?php
+require_once __DIR__ . '/backend/db.php';
+$user_id = 1; // hardcoded until auth is integrated
+$pdo = get_pdo();
+
+// Fetch current goals
+$stmt = $pdo->prepare("SELECT * FROM goals WHERE user_id = ?");
+$stmt->execute([$user_id]);
+$goals = $stmt->fetch() ?: [];
+$target_weight = $goals['target_weight'] ?? 0;
+$daily_calories = $goals['daily_calories'] ?? 0;
+$weekly_workouts = $goals['weekly_workouts'] ?? 0;
+
+// Fetch last 7 weight logs
+$stmt = $pdo->prepare("
+    SELECT weight, date 
+    FROM weight_logs 
+    WHERE user_id = ? 
+    ORDER BY date ASC 
+    LIMIT 7
+");
+$stmt->execute([$user_id]);
+$weight_logs = $stmt->fetchAll();
+
+// Get current weight
+$current_weight = !empty($weight_logs) ? end($weight_logs)['weight'] : null;
+
+// Fake data for calories since we don't track macro logs yet in the DB
+$fake_cals = [2100, 1950, 2300, 2050, 1800, 2400, 2150];
+$avg_cals = array_sum($fake_cals) / count($fake_cals);
+
+// Calculate progress percentages
+$weight_progress_pct = 0;
+if ($target_weight > 0 && $current_weight) {
+    // Assuming starting weight was e.g. target + 10 for display purposes
+    $start_weight = $target_weight + 10;
+    if ($current_weight <= $target_weight) $weight_progress_pct = 100;
+    else $weight_progress_pct = min(100, max(0, (($start_weight - $current_weight) / ($start_weight - $target_weight)) * 100));
+}
+
+$workout_progress_pct = $weekly_workouts > 0 ? (5 / $weekly_workouts) * 100 : 0;
+$workout_progress_pct = min(100, $workout_progress_pct);
+?>
 <!DOCTYPE html>
 <html lang="en">
 
@@ -116,8 +159,8 @@
           </svg></div>
         <div class="stat-card__info">
           <div class="stat-card__label">Current Weight</div>
-          <div class="stat-card__value">78 <span style="font-size:16px;color:var(--gray-500)">kg</span></div>
-          <div class="stat-card__change stat-card__change--down">↓ 2kg this month</div>
+          <div class="stat-card__value"><?= $current_weight ? $current_weight : '--' ?> <span style="font-size:16px;color:var(--gray-500)">kg</span></div>
+          <div class="stat-card__change stat-card__change--down">Target: <?= $target_weight ?: '--' ?> kg</div>
         </div>
       </div>
       <div class="stat-card animate-in">
@@ -127,8 +170,8 @@
           </svg></div>
         <div class="stat-card__info">
           <div class="stat-card__label">Avg Daily Calories</div>
-          <div class="stat-card__value" data-count="2150">0</div>
-          <div class="stat-card__change stat-card__change--up">↑ On target</div>
+          <div class="stat-card__value" data-count="<?= round($avg_cals) ?>">0</div>
+          <div class="stat-card__change stat-card__change--up">Target: <?= $daily_calories ?: '--' ?> kcal</div>
         </div>
       </div>
       <div class="stat-card animate-in">
@@ -139,7 +182,7 @@
         <div class="stat-card__info">
           <div class="stat-card__label">Workouts This Week</div>
           <div class="stat-card__value" data-count="5">0</div>
-          <div class="stat-card__change stat-card__change--up">↑ 1 more than last week</div>
+          <div class="stat-card__change stat-card__change--up">Target: <?= $weekly_workouts ?: '--' ?>x</div>
         </div>
       </div>
       <div class="stat-card animate-in">
@@ -163,45 +206,23 @@
         <div class="card__header">
           <div>
             <h2 class="card__title">⚖️ Weight Progress</h2>
-            <p class="card__subtitle">Last 7 days</p>
+            <p class="card__subtitle">Last logs</p>
           </div>
         </div>
         <div class="simple-chart">
+        <?php if (empty($weight_logs)): ?>
+             <p style="color:var(--gray-500); padding: 20px 0;">No weight data logged yet.</p>
+        <?php else: 
+            $max_w = max(array_column($weight_logs, 'weight'));
+            foreach ($weight_logs as $log): 
+                $h = ($log['weight'] / max(1, $max_w)) * 100;
+        ?>
           <div class="simple-chart__bar-wrapper">
-            <span class="simple-chart__value">80</span>
-            <div class="simple-chart__bar simple-chart__bar--blue" data-height="80" style="height:0%"></div>
-            <span class="simple-chart__label">Mon</span>
+            <span class="simple-chart__value"><?= $log['weight'] ?></span>
+            <div class="simple-chart__bar simple-chart__bar--blue" data-height="<?= round($h) ?>" style="height:0%"></div>
+            <span class="simple-chart__label" style="font-size: 10px;"><?= date('M d', strtotime($log['date'])) ?></span>
           </div>
-          <div class="simple-chart__bar-wrapper">
-            <span class="simple-chart__value">79.5</span>
-            <div class="simple-chart__bar simple-chart__bar--blue" data-height="77" style="height:0%"></div>
-            <span class="simple-chart__label">Tue</span>
-          </div>
-          <div class="simple-chart__bar-wrapper">
-            <span class="simple-chart__value">79.2</span>
-            <div class="simple-chart__bar simple-chart__bar--blue" data-height="75" style="height:0%"></div>
-            <span class="simple-chart__label">Wed</span>
-          </div>
-          <div class="simple-chart__bar-wrapper">
-            <span class="simple-chart__value">79</span>
-            <div class="simple-chart__bar simple-chart__bar--blue" data-height="73" style="height:0%"></div>
-            <span class="simple-chart__label">Thu</span>
-          </div>
-          <div class="simple-chart__bar-wrapper">
-            <span class="simple-chart__value">78.5</span>
-            <div class="simple-chart__bar simple-chart__bar--blue" data-height="70" style="height:0%"></div>
-            <span class="simple-chart__label">Fri</span>
-          </div>
-          <div class="simple-chart__bar-wrapper">
-            <span class="simple-chart__value">78.2</span>
-            <div class="simple-chart__bar simple-chart__bar--blue" data-height="68" style="height:0%"></div>
-            <span class="simple-chart__label">Sat</span>
-          </div>
-          <div class="simple-chart__bar-wrapper">
-            <span class="simple-chart__value">78</span>
-            <div class="simple-chart__bar simple-chart__bar--blue" data-height="65" style="height:0%"></div>
-            <span class="simple-chart__label">Sun</span>
-          </div>
+        <?php endforeach; endif; ?>
         </div>
       </div>
 
@@ -210,45 +231,22 @@
         <div class="card__header">
           <div>
             <h2 class="card__title">🔥 Calories History</h2>
-            <p class="card__subtitle">Last 7 days</p>
+            <p class="card__subtitle">Last 7 days (Demo Data)</p>
           </div>
         </div>
         <div class="simple-chart">
+        <?php
+            $max_c = max($fake_cals);
+            $days = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
+            foreach ($fake_cals as $i => $cal):
+                $h = ($cal / $max_c) * 100;
+        ?>
           <div class="simple-chart__bar-wrapper">
-            <span class="simple-chart__value">2100</span>
-            <div class="simple-chart__bar simple-chart__bar--green" data-height="78" style="height:0%"></div>
-            <span class="simple-chart__label">Mon</span>
+            <span class="simple-chart__value"><?= $cal ?></span>
+            <div class="simple-chart__bar simple-chart__bar--green" data-height="<?= round($h) ?>" style="height:0%"></div>
+            <span class="simple-chart__label"><?= $days[$i] ?></span>
           </div>
-          <div class="simple-chart__bar-wrapper">
-            <span class="simple-chart__value">1950</span>
-            <div class="simple-chart__bar simple-chart__bar--green" data-height="72" style="height:0%"></div>
-            <span class="simple-chart__label">Tue</span>
-          </div>
-          <div class="simple-chart__bar-wrapper">
-            <span class="simple-chart__value">2300</span>
-            <div class="simple-chart__bar simple-chart__bar--green" data-height="85" style="height:0%"></div>
-            <span class="simple-chart__label">Wed</span>
-          </div>
-          <div class="simple-chart__bar-wrapper">
-            <span class="simple-chart__value">2050</span>
-            <div class="simple-chart__bar simple-chart__bar--green" data-height="76" style="height:0%"></div>
-            <span class="simple-chart__label">Thu</span>
-          </div>
-          <div class="simple-chart__bar-wrapper">
-            <span class="simple-chart__value">1800</span>
-            <div class="simple-chart__bar simple-chart__bar--green" data-height="67" style="height:0%"></div>
-            <span class="simple-chart__label">Fri</span>
-          </div>
-          <div class="simple-chart__bar-wrapper">
-            <span class="simple-chart__value">2400</span>
-            <div class="simple-chart__bar simple-chart__bar--green" data-height="89" style="height:0%"></div>
-            <span class="simple-chart__label">Sat</span>
-          </div>
-          <div class="simple-chart__bar-wrapper">
-            <span class="simple-chart__value">2150</span>
-            <div class="simple-chart__bar simple-chart__bar--green" data-height="80" style="height:0%"></div>
-            <span class="simple-chart__label">Sun</span>
-          </div>
+        <?php endforeach; ?>
         </div>
       </div>
     </div>
@@ -258,43 +256,25 @@
       <div class="card__header">
         <div>
           <h2 class="card__title">📊 Monthly Goals Progress</h2>
-          <p class="card__subtitle">February 2026</p>
+          <p class="card__subtitle"><?= date('F Y') ?></p>
         </div>
       </div>
       <div class="progress-bar-group">
         <div class="progress-bar__header">
           <span class="progress-bar__label">Weight Loss Progress</span>
-          <span class="progress-bar__value">2 / 3 kg</span>
+          <span class="progress-bar__value"><?= $current_weight ?: '--' ?> / <?= $target_weight ?: '--' ?> kg</span>
         </div>
         <div class="progress-bar">
-          <div class="progress-bar__fill progress-bar__fill--blue" data-width="67"></div>
+          <div class="progress-bar__fill progress-bar__fill--blue" data-width="<?= round($weight_progress_pct) ?>"></div>
         </div>
       </div>
       <div class="progress-bar-group">
         <div class="progress-bar__header">
           <span class="progress-bar__label">Workout Frequency</span>
-          <span class="progress-bar__value">18 / 20 sessions</span>
+          <span class="progress-bar__value">5 / <?= $weekly_workouts ?: '--' ?> sessions</span>
         </div>
         <div class="progress-bar">
-          <div class="progress-bar__fill progress-bar__fill--green" data-width="90"></div>
-        </div>
-      </div>
-      <div class="progress-bar-group">
-        <div class="progress-bar__header">
-          <span class="progress-bar__label">Calorie Target Adherence</span>
-          <span class="progress-bar__value">10 / 12 days on target</span>
-        </div>
-        <div class="progress-bar">
-          <div class="progress-bar__fill progress-bar__fill--orange" data-width="83"></div>
-        </div>
-      </div>
-      <div class="progress-bar-group">
-        <div class="progress-bar__header">
-          <span class="progress-bar__label">Water Intake Goal</span>
-          <span class="progress-bar__value">8 / 12 days achieved</span>
-        </div>
-        <div class="progress-bar">
-          <div class="progress-bar__fill progress-bar__fill--purple" data-width="67"></div>
+          <div class="progress-bar__fill progress-bar__fill--green" data-width="<?= round($workout_progress_pct) ?>"></div>
         </div>
       </div>
     </div>
