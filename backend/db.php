@@ -20,7 +20,7 @@ function env_or_throw(string $key): string
         throw new RuntimeException("Missing required env var: {$key}");
     }
 
-    return $value;
+    return (string)$value;
 }
 
 function get_pdo(): PDO
