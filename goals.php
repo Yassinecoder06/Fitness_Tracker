@@ -1,8 +1,12 @@
 <?php
+require_once __DIR__ . '/backend/bootstrap.php';
 require_once __DIR__ . '/backend/db.php';
+require_once __DIR__ . '/backend/auth.php';
 
-$user_id = 1; // hardcoded until auth is integrated
 $pdo = get_pdo();
+ensure_authenticated($pdo, '/goals.php');
+
+$user_id = $_SESSION['user_id'];
 $success = false;
 
 // Handle POST - upsert goals
