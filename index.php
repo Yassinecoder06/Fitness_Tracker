@@ -18,10 +18,10 @@ $calories_consumed = $dashboard->caloriesConsumed($date_formatted, $id);
 $calories_burned = $dashboard->caloriesBurned($date_formatted, $id);
 $steps = $dashboard->stepsToday($date_formatted, $id);
 $calorie_budget = $dashboard->caloriesBudget($date_formatted, $id);
+$calorie_budget = $calorie_budget > 0 ? $calorie_budget : 2700;
 $prot = $dashboard->ProteinAmount($date_formatted, $id);
 $carb = $dashboard->CarbsAmount($date_formatted, $id);
 $fat = $dashboard->FatAmount($date_formatted, $id);
-$fiber = $dashboard->FiberAmount($date_formatted, $id);
 $yesterday = date('Y-m-d', strtotime('-1 day'));
 $calories_consumed_yesterday = $dashboard->caloriesConsumed($yesterday, $id);
 $remaining_calories = max(0, $calorie_budget - $calories_consumed);
@@ -37,6 +37,47 @@ if ($calories_consumed_yesterday > 0) {
 }
 
 $array_of_exercice = $dashboard->exercice_today($date_formatted, $id);
+
+function fetch_meals_by_types(PDO $pdo, int $userId, string $date, array $types): array
+{
+  if (count($types) === 0) {
+    return [];
+  }
+
+  $placeholders = implode(',', array_fill(0, count($types), '?'));
+  $sql = "
+    select food_name, calories
+    from meals
+    where user_id = ?
+      and date = ?
+      and lower(meal_type) in ({$placeholders})
+  ";
+  $stmt = $pdo->prepare($sql);
+
+  $lowerTypes = array_map('strtolower', $types);
+  $params = array_merge([$userId, $date], $lowerTypes);
+  $stmt->execute($params);
+
+  return $stmt->fetchAll(PDO::FETCH_ASSOC);
+}
+
+$morning_meals = fetch_meals_by_types($pdo, $id, $date_formatted, ['breakfast']);
+$launch_meals = fetch_meals_by_types($pdo, $id, $date_formatted, ['lunch']);
+$dinner_meals = fetch_meals_by_types($pdo, $id, $date_formatted, ['dinner']);
+$snack_meals = fetch_meals_by_types($pdo, $id, $date_formatted, ['snack']);
+
+$sum_cal_morning = array_sum(array_column($morning_meals, 'calories'));
+$sum_cal_launch = array_sum(array_column($launch_meals, 'calories'));
+$sum_cal_dinner = array_sum(array_column($dinner_meals, 'calories'));
+$sum_cal_snack = array_sum(array_column($snack_meals, 'calories'));
+
+$avatarInitials = 'U';
+$nameParts = preg_split('/\s+/', trim((string)$name));
+if (!empty($nameParts)) {
+  $first = $nameParts[0] ?? '';
+  $last = $nameParts[count($nameParts) - 1] ?? '';
+  $avatarInitials = strtoupper(substr($first, 0, 1) . substr($last, 0, 1));
+}
 ?>
 
 <!DOCTYPE html>
@@ -63,16 +104,14 @@ $array_of_exercice = $dashboard->exercice_today($date_formatted, $id);
         FitTrack
       </a>
     </div>
-    <div class="navbar__search">
-      <svg class="navbar__search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
-      <input type="text" placeholder="Search food, exercises, goals...">
-    </div>
     <div class="navbar__right">
       <button class="navbar__icon-btn" aria-label="Notifications">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
         <span class="navbar__badge"></span>
       </button>
-      <div class="navbar__avatar" title="User">JD</div>
+      <div class="navbar__avatar" title="<?= htmlspecialchars((string)$name) ?>">
+        <?= htmlspecialchars($avatarInitials) ?>
+      </div>
     </div>
   </nav>
 
@@ -182,27 +221,27 @@ $array_of_exercice = $dashboard->exercice_today($date_formatted, $id);
         <div class="card__header">
           <div>
             <h2 class="card__title">Calorie Budget</h2>
-            <p class="card__subtitle">Daily target: 2,700 kcal</p>
+            <p class="card__subtitle">Daily target: <?= number_format($calorie_budget) ?> kcal</p>
           </div>
         </div>
         <div class="calorie-ring">
           <svg class="calorie-ring__svg" viewBox="0 0 180 180">
             <circle class="calorie-ring__bg" cx="90" cy="90" r="80"/>
-            <circle class="calorie-ring__fill" <?= $remaining_calories>2700 ? 'style="stroke:#1fb382";':'' ?> cx="90" cy="90" r="80" data-percent="<?= $remaining_calories > 2700 ? 100 : $remaining_calories * 100 / 2700 ?>"/>
+            <circle class="calorie-ring__fill" <?= $remaining_calories > $calorie_budget ? 'style="stroke:#1fb382";':'' ?> cx="90" cy="90" r="80" data-percent="<?= $remaining_calories > $calorie_budget ? 100 : round($remaining_calories * 100 / $calorie_budget) ?>"/>
           </svg>
           <div class="calorie-ring__center">
             <div class="calorie-ring__number"><?= $remaining_calories ?></div>
             <div class="calorie-ring__text">
               <?php
 
-                if ($remaining_calories > 2700){echo "done ✔️";}
+                if ($remaining_calories > $calorie_budget){echo "done";}
                 else{echo "remaining";}
               ?>
             </div>
           </div>
           <div class="calorie-ring__footer">
             <div class="calorie-ring__item">
-              <span class="calorie-ring__item-value">2,700</span>
+              <span class="calorie-ring__item-value"><?= number_format($calorie_budget) ?></span>
               <span class="calorie-ring__item-label">Goal</span>
             </div>
             <div class="calorie-ring__item">
@@ -266,7 +305,7 @@ $array_of_exercice = $dashboard->exercice_today($date_formatted, $id);
             <span class="meal-card__emoji">AM</span>
             <div>
               <div class="meal-card__name">Breakfast</div>
-              <div class="meal-card__cals"><?= $sum_cal_mroning ?> kcal</div>
+              <div class="meal-card__cals"><?= $sum_cal_morning ?> kcal</div>
             </div>
           </div>
           <button class="meal-card__add-btn" title="Add food">
@@ -275,7 +314,7 @@ $array_of_exercice = $dashboard->exercice_today($date_formatted, $id);
         </div>
           <?php 
           if(count($morning_meals)==0){
-            echo "<div class='meal-card__empty'>No snacks logged yet</div>";
+            echo "<div class='meal-card__empty'>No meals logged yet</div>";
           }else{
           foreach($morning_meals as $meal){
             echo <<<TEXT
@@ -307,7 +346,7 @@ $array_of_exercice = $dashboard->exercice_today($date_formatted, $id);
           
           <?php 
           if(count($launch_meals)==0){
-            echo "<div class='meal-card__empty'>No snacks logged yet</div>";
+            echo "<div class='meal-card__empty'>No meals logged yet</div>";
           }else{
           foreach($launch_meals as $meal){
             echo <<<TEXT
@@ -337,10 +376,10 @@ $array_of_exercice = $dashboard->exercice_today($date_formatted, $id);
           </button>
         </div>
                   <?php 
-          if(count($dinner_meal)==0){
-            echo "<div class='meal-card__empty'>No snacks logged yet</div>";
+          if(count($dinner_meals)==0){
+            echo "<div class='meal-card__empty'>No meals logged yet</div>";
           }else{
-          foreach($dinner_meal as $meal){
+          foreach($dinner_meals as $meal){
             echo <<<TEXT
             <div class="meal-card__items">
               <div class="meal-card__item">
@@ -367,10 +406,10 @@ $array_of_exercice = $dashboard->exercice_today($date_formatted, $id);
           </button>
         </div>
                   <?php 
-          if(count($snack)==0){
+          if(count($snack_meals)==0){
             echo "<div class='meal-card__empty'>No snacks logged yet</div>";
           }else{
-          foreach($snack as $meal){
+          foreach($snack_meals as $meal){
             echo <<<TEXT
             <div class="meal-card__items">
               <div class="meal-card__item">

@@ -7,6 +7,36 @@ $pdo = get_pdo();
 ensure_authenticated($pdo, '/progress.php');
 
 $user_id = $_SESSION['user_id'];
+$name = $_SESSION['user_name'] ?? 'User';
+
+$avatarInitials = 'U';
+$nameParts = preg_split('/\s+/', trim((string)$name));
+if (!empty($nameParts)) {
+  $first = $nameParts[0] ?? '';
+  $last = $nameParts[count($nameParts) - 1] ?? '';
+  $avatarInitials = strtoupper(substr($first, 0, 1) . substr($last, 0, 1));
+}
+
+$weight_error = null;
+$weight_success = false;
+
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['weight'])) {
+  $weight = filter_var($_POST['weight'], FILTER_VALIDATE_FLOAT);
+  $logDate = $_POST['log_date'] ?? date('Y-m-d');
+
+  if ($weight === false || $weight <= 0) {
+    $weight_error = 'Please enter a valid weight.';
+  } else {
+    $stmt = $pdo->prepare(
+      'INSERT INTO weight_logs (user_id, weight, date) VALUES (?, ?, ?)'
+    );
+    $stmt->execute([$user_id, $weight, $logDate]);
+    $weight_success = true;
+
+    header('Location: progress.php');
+    exit;
+  }
+}
 
 // Fetch current goals
 $stmt = $pdo->prepare("SELECT * FROM goals WHERE user_id = ?");
@@ -30,9 +60,35 @@ $weight_logs = $stmt->fetchAll();
 // Get current weight
 $current_weight = !empty($weight_logs) ? end($weight_logs)['weight'] : null;
 
-// Fake data for calories since we don't track macro logs yet in the DB
-$fake_cals = [2100, 1950, 2300, 2050, 1800, 2400, 2150];
-$avg_cals = array_sum($fake_cals) / count($fake_cals);
+// Calories history from meals (last 7 days)
+$stmt = $pdo->prepare("
+  select date, sum(calories) as total_calories
+  from meals
+  where user_id = ?
+    and date >= current_date - interval '6 days'
+  group by date
+  order by date asc
+");
+$stmt->execute([$user_id]);
+$rows = $stmt->fetchAll();
+
+$totalsByDate = [];
+foreach ($rows as $row) {
+  $totalsByDate[$row['date']] = (int)($row['total_calories'] ?? 0);
+}
+
+$calorie_history = [];
+for ($i = 6; $i >= 0; $i--) {
+  $day = date('Y-m-d', strtotime("-{$i} days"));
+  $calorie_history[] = [
+    'date' => $day,
+    'total' => $totalsByDate[$day] ?? 0,
+  ];
+}
+
+$avg_cals = count($calorie_history) > 0
+  ? array_sum(array_column($calorie_history, 'total')) / count($calorie_history)
+  : 0;
 
 // Calculate progress percentages
 $weight_progress_pct = 0;
@@ -79,14 +135,6 @@ $workout_progress_pct = min(100, $workout_progress_pct);
         FitTrack
       </a>
     </div>
-    <div class="navbar__search">
-      <svg class="navbar__search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
-        stroke-linecap="round">
-        <circle cx="11" cy="11" r="8" />
-        <line x1="21" y1="21" x2="16.65" y2="16.65" />
-      </svg>
-      <input type="text" placeholder="Search food, exercises, goals...">
-    </div>
     <div class="navbar__right">
       <button class="navbar__icon-btn" aria-label="Notifications">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
@@ -96,7 +144,9 @@ $workout_progress_pct = min(100, $workout_progress_pct);
         </svg>
         <span class="navbar__badge"></span>
       </button>
-      <div class="navbar__avatar" title="User">JD</div>
+      <div class="navbar__avatar" title="<?= htmlspecialchars((string)$name) ?>">
+        <?= htmlspecialchars($avatarInitials) ?>
+      </div>
     </div>
   </nav>
 
@@ -214,6 +264,22 @@ $workout_progress_pct = min(100, $workout_progress_pct);
             <p class="card__subtitle">Last logs</p>
           </div>
         </div>
+        <form method="post" action="progress.php" style="margin-bottom:16px;">
+          <div class="form-group" style="max-width:280px;">
+            <label class="form-label" for="weight">Current Weight (kg)</label>
+            <input class="form-input" type="number" step="0.1" min="1" id="weight" name="weight" placeholder="72.5" required>
+          </div>
+          <div class="form-group" style="max-width:280px;">
+            <label class="form-label" for="log_date">Date</label>
+            <input class="form-input" type="date" id="log_date" name="log_date" value="<?= date('Y-m-d') ?>">
+          </div>
+          <?php if ($weight_error): ?>
+            <div style="color: var(--accent-red); margin-bottom: 8px;">
+              <?= htmlspecialchars($weight_error) ?>
+            </div>
+          <?php endif; ?>
+          <button class="btn btn--primary" type="submit">Add Weight</button>
+        </form>
         <div class="simple-chart">
         <?php if (empty($weight_logs)): ?>
              <p style="color:var(--gray-500); padding: 20px 0;">No weight data logged yet.</p>
@@ -236,20 +302,20 @@ $workout_progress_pct = min(100, $workout_progress_pct);
         <div class="card__header">
           <div>
             <h2 class="card__title">🔥 Calories History</h2>
-            <p class="card__subtitle">Last 7 days (Demo Data)</p>
+            <p class="card__subtitle">Last 7 days</p>
           </div>
         </div>
         <div class="simple-chart">
         <?php
-            $max_c = max($fake_cals);
-            $days = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
-            foreach ($fake_cals as $i => $cal):
+            $max_c = max(array_column($calorie_history, 'total')) ?: 1;
+            foreach ($calorie_history as $entry):
+                $cal = (int)$entry['total'];
                 $h = ($cal / $max_c) * 100;
         ?>
           <div class="simple-chart__bar-wrapper">
             <span class="simple-chart__value"><?= $cal ?></span>
             <div class="simple-chart__bar simple-chart__bar--green" data-height="<?= round($h) ?>" style="height:0%"></div>
-            <span class="simple-chart__label"><?= $days[$i] ?></span>
+            <span class="simple-chart__label"><?= date('D', strtotime($entry['date'])) ?></span>
           </div>
         <?php endforeach; ?>
         </div>
