@@ -122,7 +122,6 @@ class Dashboard implements IDashboard {
         return (int)($res['tot'] ?? 0);
     }
 
-    // traja3lk tous les exercice li t3amlou lyoum
     public function exercice_today($date, $id) {
         $query = $this->pdo->prepare("
             SELECT *
@@ -131,6 +130,18 @@ class Dashboard implements IDashboard {
         ");
         $query->execute([$id, $date]);
         return $query->fetchAll(PDO::FETCH_ASSOC);
+    }
+
+    public function exerciceType($name): string {
+        $query = $this->pdo->prepare("
+            SELECT category
+            FROM exercise_library
+            WHERE name = ?
+            LIMIT 1
+        ");
+        $query->execute([$name]);
+        $res = $query->fetch(PDO::FETCH_ASSOC);
+        return $res['category'] ?? 'Cardio';
     }
 }
 ?>

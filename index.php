@@ -441,10 +441,12 @@ $avatarInitials = get_user_initials($name);
           <!-- fill table content with exercise_logs entries -->
           <?php
             foreach($array_of_exercice as $exercice ){
+              $type = $dashboard->exerciceType($exercice["exercise_name"]);
+              $typeClass = strtolower($type);
               echo <<<TEXT
                 <tr>
                   <td><strong>{$exercice["exercise_name"]}</strong></td>
-                  <td><span class="table-tag table-tag--cardio">{$dashboard->exerciceType($exercice["exercise_name"])}</span></td>
+                  <td><span class="table-tag table-tag--{$typeClass}">{$type}</span></td>
                   <td>{$exercice["duration"]} min</td>
                   <td><strong>{$exercice["calories_burned"]} kcal</strong></td>
                 </tr>
