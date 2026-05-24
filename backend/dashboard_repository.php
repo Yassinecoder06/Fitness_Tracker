@@ -140,14 +140,14 @@ class Dashboard implements IDashboard {
     }
 
     // traja3lk tous les exercice li t3amlou lyoum
-    public function exercice_today($date,$id){
+    public function exercice_today($date, $id) {
         $query = $this->pdo->prepare("
-            select * from exercise_logs
-            where id= ? and date = ?
+            SELECT *
+            FROM exercise_logs
+            WHERE user_id = ? AND date = ?
         ");
-        $query->execute([$id,$date]);
-        $res = $query->fetchAll(PDO::FETCH_ASSOC);
-        return $res;
+        $query->execute([$id, $date]);
+        return $query->fetchAll(PDO::FETCH_ASSOC);
     }
 
     #[Override]
@@ -155,6 +155,67 @@ class Dashboard implements IDashboard {
     {
         
         return 1;
+    }
+
+    public function morningMeals($date, $id){
+        $query = $this->pdo->prepare("
+            SELECT food_name, calories
+            FROM meals
+            WHERE user_id = ?
+            AND date = ?
+            AND meal_type = 'breakfast'
+        ");
+
+        $query->execute([$id, $date]);
+        return $query->fetchAll(PDO::FETCH_ASSOC);
+    }
+
+
+    public function launchMeals($date, $id){
+        $query = $this->pdo->prepare("
+            SELECT food_name, calories
+            FROM meals
+            WHERE user_id = ?
+            AND date = ?
+            AND meal_type IN ('breakfast', 'lunch')
+        ");
+
+        $query->execute([$id, $date]);
+        return $query->fetchAll(PDO::FETCH_ASSOC);
+    }
+
+    public function dinnerMeals($date, $id){
+        $query = $this->pdo->prepare("
+            SELECT food_name, calories
+            FROM meals
+            WHERE user_id = ?
+            AND date = ?
+            AND meal_type = 'dinner'
+        ");
+
+        $query->execute([$id, $date]);
+        return $query->fetchAll(PDO::FETCH_ASSOC);
+    }
+
+    public function snackMeals($date, $id){
+    $query = $this->pdo->prepare("
+        SELECT food_name, calories
+        FROM meals
+        WHERE user_id = ?
+          AND date = ?
+          AND meal_type = 'snack'
+    ");
+
+    $query->execute([$id, $date]);
+    return $query->fetchAll(PDO::FETCH_ASSOC);
+    }
+
+
+    public function exerciceType($name){
+        $query = $this->pdo->prepare("select name from exercises where name = ?");
+        $query->execute([$name]);
+        $res = $query->fetch(PDO::FETCH_ASSOC);
+        return $res["exercise_name"] ?? "sports";
     }
 }
 ?>
