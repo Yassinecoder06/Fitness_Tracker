@@ -7,13 +7,20 @@ require_once __DIR__ . '/backend/auth.php';
 
 $pdo = get_pdo();
 ensure_authenticated($pdo, '/index.php');
+
+function e(string $value): string
+{
+  return htmlspecialchars($value, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8');
+}
+
+$userName = $_SESSION['user_name'] ?? 'User';
 ?>
 <!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta name="description" content="FitTrack Dashboard â€” Track your daily calories, meals, exercises, and nutrition goals.">
+  <meta name="description" content="FitTrack Dashboard ” Track your daily calories, meals, exercises, and nutrition goals.">
   <title>FitTrack | Dashboard</title>
   <link rel="stylesheet" href="css/style.css">
 </head>
@@ -93,7 +100,7 @@ ensure_authenticated($pdo, '/index.php');
   <main class="main">
     <div class="main__header">
       <h1 class="main__title">Dashboard</h1>
-      <p class="main__subtitle">Wednesday, February 12, 2026 â€” Welcome back, John!</p>
+      <p class="main__subtitle">Wednesday, February 12, 2026 - Welcome back, <?= e($userName) ?>!</p>
     </div>
 
     <!-- STAT CARDS -->
