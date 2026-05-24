@@ -1,43 +1,42 @@
 <?php
-declare(strict_types=1);
-
-require_once __DIR__ . '/backend/bootstrap.php';
-require_once __DIR__ . '/backend/db.php';
-require_once __DIR__ . '/backend/auth.php';
-require_once __DIR__ . '/backend/dashboard_repository.php';
+  session_start();
+  require_once __DIR__ . '/backend/bootstrap.php';
+  require_once __DIR__ . '/backend/db.php';
+  require_once __DIR__ . '/backend/auth.php';
+  require_once __DIR__ . '/backend/dashboard_repository.php';
 
 $pdo = get_pdo();
 ensure_authenticated($pdo, '/index.php');
 
 $date = new DateTime();
-$date_formated = $date->format('Y-m-d');
+$date_formatted = $date->format('Y-m-d');
 $name = $_SESSION['user_name'] ?? 'User';
 $id = $_SESSION['user_id'] ?? 0;
 
 $dashboard = new Dashboard();
-$calories_consumed = $dashboard->caloriesConsumed($date_formated, $id);
-$calories_burned = $dashboard->caloriesBurned($date_formated, $id);
-$steps = $dashboard->stepsToday($date_formated, $id);
-$calurie_budget = $dashboard->caloriesBudget($date_formated, $id);
-$prot = $dashboard->ProteinAmount($date_formated, $id);
-$carb = $dashboard->CarbsAmount($date_formated, $id);
-$fat = $dashboard->FatAmount($date_formated, $id);
+$calories_consumed = $dashboard->caloriesConsumed($date_formatted, $id);
+$calories_burned = $dashboard->caloriesBurned($date_formatted, $id);
+$steps = $dashboard->stepsToday($date_formatted, $id);
+$calorie_budget = $dashboard->caloriesBudget($date_formatted, $id);
+$prot = $dashboard->ProteinAmount($date_formatted, $id);
+$carb = $dashboard->CarbsAmount($date_formatted, $id);
+$fat = $dashboard->FatAmount($date_formatted, $id);
+$fiber = $dashboard->FiberAmount($date_formatted, $id);
 $yesterday = date('Y-m-d', strtotime('-1 day'));
-$remaining_calories = 2700 - $calories_consumed;
 $calories_consumed_yesterday = $dashboard->caloriesConsumed($yesterday, $id);
+$remaining_calories = max(0, $calorie_budget - $calories_consumed);
 $pourcentage_steps = $steps * 100 / 10000;
 
-// calcul de calorie consumed w choix de couleur de label
 if ($calories_consumed_yesterday > 0) {
   $diff = $calories_consumed - $calories_consumed_yesterday;
   $label_color = $diff >= 0 ? 'green' : 'red';
-  $pourcentage_today_yesterday_consumed_calories = ($diff * 100) / $calories_consumed_yesterday;
+  $pourcentage_today_yesterday_consumed_calories = round(($diff * 100) / $calories_consumed_yesterday, 1);
 } else {
   $label_color = 'green';
   $pourcentage_today_yesterday_consumed_calories = 0;
 }
 
-$array_of_exercice = $dashboard->exercice_today($date_formated, $id);
+$array_of_exercice = $dashboard->exercice_today($date_formatted, $id);
 ?>
 
 <!DOCTYPE html>
@@ -125,7 +124,9 @@ $array_of_exercice = $dashboard->exercice_today($date_formated, $id);
   <main class="main">
     <div class="main__header">
       <h1 class="main__title">Dashboard</h1>
-      <?= "<p class='main__subtitle'>" . $date->format("l, F d, Y") . " &mdash; Welcome back, " . htmlspecialchars($name) . "! </p>" ?>
+  <p class="main__subtitle">
+    <?= htmlspecialchars($date->format('l, F d, Y') . " — Welcome back, " . $name . "!") ?>
+  </p>
     </div>
 
     <!-- STAT CARDS -->
@@ -187,11 +188,17 @@ $array_of_exercice = $dashboard->exercice_today($date_formated, $id);
         <div class="calorie-ring">
           <svg class="calorie-ring__svg" viewBox="0 0 180 180">
             <circle class="calorie-ring__bg" cx="90" cy="90" r="80"/>
-            <circle class="calorie-ring__fill" cx="90" cy="90" r="80" data-percent="54"/>
+            <circle class="calorie-ring__fill" <?= $remaining_calories>2700 ? 'style="stroke:#1fb382";':'' ?> cx="90" cy="90" r="80" data-percent="<?= $remaining_calories > 2700 ? 100 : $remaining_calories * 100 / 2700 ?>"/>
           </svg>
           <div class="calorie-ring__center">
             <div class="calorie-ring__number"><?= $remaining_calories ?></div>
-            <div class="calorie-ring__text">remaining</div>
+            <div class="calorie-ring__text">
+              <?php
+
+                if ($remaining_calories > 2700){echo "done ✔️";}
+                else{echo "remaining";}
+              ?>
+            </div>
           </div>
           <div class="calorie-ring__footer">
             <div class="calorie-ring__item">
@@ -259,23 +266,29 @@ $array_of_exercice = $dashboard->exercice_today($date_formated, $id);
             <span class="meal-card__emoji">AM</span>
             <div>
               <div class="meal-card__name">Breakfast</div>
-              <div class="meal-card__cals">420 kcal</div>
+              <div class="meal-card__cals"><?= $sum_cal_mroning ?> kcal</div>
             </div>
           </div>
           <button class="meal-card__add-btn" title="Add food">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
           </button>
         </div>
-        <div class="meal-card__items">
-          <div class="meal-card__item">
-            <span class="meal-card__item-name">Oatmeal with Berries</span>
-            <span class="meal-card__item-cal">280 kcal</span>
-          </div>
-          <div class="meal-card__item">
-            <span class="meal-card__item-name">Green Smoothie</span>
-            <span class="meal-card__item-cal">140 kcal</span>
-          </div>
-        </div>
+          <?php 
+          if(count($morning_meals)==0){
+            echo "<div class='meal-card__empty'>No snacks logged yet</div>";
+          }else{
+          foreach($morning_meals as $meal){
+            echo <<<TEXT
+            <div class="meal-card__items">
+              <div class="meal-card__item">
+                <span class="meal-card__item-name">{$meal['food_name']}</span>
+                <span class="meal-card__item-cal">{$meal['calories']} kcal</span>
+              </div>
+            </div>
+            TEXT;
+          }
+          }
+          ?>
       </div>
       <div class="meal-card animate-in">
         <div class="meal-card__header">
@@ -283,7 +296,7 @@ $array_of_exercice = $dashboard->exercice_today($date_formated, $id);
             <span class="meal-card__emoji">Noon</span>
             <div>
               <div class="meal-card__name">Lunch</div>
-              <div class="meal-card__cals">580 kcal</div>
+              <div class="meal-card__cals"><?= $sum_cal_launch ?> kcal</div>
             </div>
           </div>
           <button class="meal-card__add-btn" title="Add food">
@@ -291,18 +304,23 @@ $array_of_exercice = $dashboard->exercice_today($date_formated, $id);
           </button>
         </div>
         <div class="meal-card__items">
-          <div class="meal-card__item">
-            <span class="meal-card__item-name">Grilled Chicken Salad</span>
-            <span class="meal-card__item-cal">380 kcal</span>
-          </div>
-          <div class="meal-card__item">
-            <span class="meal-card__item-name">Whole Wheat Bread</span>
-            <span class="meal-card__item-cal">120 kcal</span>
-          </div>
-          <div class="meal-card__item">
-            <span class="meal-card__item-name">Apple</span>
-            <span class="meal-card__item-cal">80 kcal</span>
-          </div>
+          
+          <?php 
+          if(count($launch_meals)==0){
+            echo "<div class='meal-card__empty'>No snacks logged yet</div>";
+          }else{
+          foreach($launch_meals as $meal){
+            echo <<<TEXT
+            <div class="meal-card__items">
+              <div class="meal-card__item">
+                <span class="meal-card__item-name">{$meal['food_name']}</span>
+                <span class="meal-card__item-cal">{$meal['calories']} kcal</span>
+              </div>
+            </div>
+            TEXT;
+          }
+          }
+          ?>
         </div>
       </div>
       <div class="meal-card animate-in">
@@ -311,19 +329,29 @@ $array_of_exercice = $dashboard->exercice_today($date_formated, $id);
             <span class="meal-card__emoji">PM</span>
             <div>
               <div class="meal-card__name">Dinner</div>
-              <div class="meal-card__cals">450 kcal</div>
+              <div class="meal-card__cals"><?= $sum_cal_dinner ?> kcal</div>
             </div>
           </div>
           <button class="meal-card__add-btn" title="Add food">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
           </button>
         </div>
-        <div class="meal-card__items">
-          <div class="meal-card__item">
-            <span class="meal-card__item-name">Salmon with Rice</span>
-            <span class="meal-card__item-cal">450 kcal</span>
-          </div>
-        </div>
+                  <?php 
+          if(count($dinner_meal)==0){
+            echo "<div class='meal-card__empty'>No snacks logged yet</div>";
+          }else{
+          foreach($dinner_meal as $meal){
+            echo <<<TEXT
+            <div class="meal-card__items">
+              <div class="meal-card__item">
+                <span class="meal-card__item-name">{$meal['food_name']}</span>
+                <span class="meal-card__item-cal">{$meal['calories']} kcal</span>
+              </div>
+            </div>
+            TEXT;
+          }
+          }
+          ?>
       </div>
       <div class="meal-card animate-in">
         <div class="meal-card__header">
@@ -331,14 +359,29 @@ $array_of_exercice = $dashboard->exercice_today($date_formated, $id);
             <span class="meal-card__emoji">Snack</span>
             <div>
               <div class="meal-card__name">Snacks</div>
-              <div class="meal-card__cals">0 kcal</div>
+              <div class="meal-card__cals"><?= $sum_cal_snack ?> kcal</div>
             </div>
           </div>
           <button class="meal-card__add-btn" title="Add food">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
           </button>
         </div>
-        <div class="meal-card__empty">No snacks logged yet</div>
+                  <?php 
+          if(count($snack)==0){
+            echo "<div class='meal-card__empty'>No snacks logged yet</div>";
+          }else{
+          foreach($snack as $meal){
+            echo <<<TEXT
+            <div class="meal-card__items">
+              <div class="meal-card__item">
+                <span class="meal-card__item-name">{$meal['food_name']}</span>
+                <span class="meal-card__item-cal">{$meal['calories']} kcal</span>
+              </div>
+            </div>
+            TEXT;
+          }
+          }
+          ?>
       </div>
     </div>
 
@@ -367,7 +410,7 @@ $array_of_exercice = $dashboard->exercice_today($date_formated, $id);
               echo <<<TEXT
                 <tr>
                   <td><strong>{$exercice["exercise_name"]}</strong></td>
-                  <td><span class="table-tag table-tag--cardio">Cardio</span></td>
+                  <td><span class="table-tag table-tag--cardio">{$dashboard->exerciceType($exercice["exercise_name"])}</span></td>
                   <td>{$exercice["duration"]} min</td>
                   <td><strong>{$exercice["calories_burned"]} kcal</strong></td>
                 </tr>

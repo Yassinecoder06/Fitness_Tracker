@@ -48,7 +48,7 @@ function sanitize_exercise_payload(array $input): array
     ];
 }
 
-function insert_exercise(array $payload): array
+function insert_exercise(array $payload, int $userId): array
 {
     $pdo = get_pdo();
     $data = sanitize_exercise_payload($payload);
@@ -58,12 +58,13 @@ function insert_exercise(array $payload): array
     }
 
     $sql = "
-        insert into public.exercises (name, category, duration_minutes, calories_burned, logged_at, exercise_id)
-        values (:name, :category, :duration_minutes, :calories_burned, now(), :exercise_id)
+        insert into public.exercises (user_id, name, category, duration_minutes, calories_burned, logged_at, exercise_id)
+        values (:user_id, :name, :category, :duration_minutes, :calories_burned, now(), :exercise_id)
         returning id, name, category, duration_minutes, calories_burned, logged_at
     ";
 
     $stmt = $pdo->prepare($sql);
+    $stmt->bindValue(':user_id', $userId, PDO::PARAM_INT);
     $stmt->bindValue(':name', $data['name']);
     $stmt->bindValue(':category', $data['category']);
     $stmt->bindValue(':duration_minutes', $data['duration_minutes'], PDO::PARAM_INT);
@@ -75,7 +76,7 @@ function insert_exercise(array $payload): array
     return $row ?: $data;
 }
 
-function fetch_recent_exercises(int $limit = 5): array
+function fetch_recent_exercises(int $userId, int $limit = 5): array
 {
     $pdo = get_pdo();
     $limit = max(1, min(20, $limit));
@@ -83,11 +84,13 @@ function fetch_recent_exercises(int $limit = 5): array
     $sql = "
         select name, category, duration_minutes, calories_burned, logged_at
         from public.exercises
+        where user_id = :user_id
         order by logged_at desc, created_at desc
         limit :limit
     ";
 
     $stmt = $pdo->prepare($sql);
+    $stmt->bindValue(':user_id', $userId, PDO::PARAM_INT);
     $stmt->bindValue(':limit', $limit, PDO::PARAM_INT);
     $stmt->execute();
 

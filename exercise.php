@@ -79,7 +79,7 @@ $error = null;
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     try {
-        $created = insert_exercise($_POST);
+        $created = insert_exercise($_POST, (int)$_SESSION['user_id']);
         $created['display_date'] = format_log_date($created['logged_at'] ?? null);
         $created['calories_display'] = format_calories($created['calories_burned'] ?? 0);
 
@@ -107,7 +107,7 @@ $categories = EXERCISE_CATEGORIES;
 $selectedCategory = normalize_exercise_category($_GET['category'] ?? null);
 $categoryCounts = fetch_exercise_library_counts();
 $libraryExercises = fetch_exercise_library($selectedCategory);
-$recentExercises = fetch_recent_exercises(5);
+$recentExercises = fetch_recent_exercises((int)$_SESSION['user_id'], 5);
 ?>
 <!DOCTYPE html>
 <html lang="en">

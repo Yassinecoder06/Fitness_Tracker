@@ -41,8 +41,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         exit;
     }
     if ($action === 'delete_meal') {
-        $stmt = $pdo->prepare("DELETE FROM meals WHERE id = ? ");
-        $stmt->execute([$_POST['id']]);
+      $stmt = $pdo->prepare("DELETE FROM meals WHERE id = ? AND user_id = ?");
+      $stmt->execute([$_POST['id'], $user_id]);
 
         echo json_encode(['success' => true]);
         exit;
@@ -69,8 +69,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
     
     if ($action === 'delete_exercise') {
-        $stmt = $pdo->prepare("DELETE FROM exercise_logs WHERE id = ? ");
-        $stmt->execute([$_POST['id']]);
+      $stmt = $pdo->prepare("DELETE FROM exercise_logs WHERE id = ? AND user_id = ?");
+      $stmt->execute([$_POST['id'], $user_id]);
 
         echo json_encode(['success' => true]);
         exit;
