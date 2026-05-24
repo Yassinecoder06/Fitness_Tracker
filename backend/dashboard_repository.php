@@ -107,21 +107,22 @@ class Dashboard implements IDashboard {
     }
 
     // fiber
-    public function FiberAmount($day, $id): int {
+    
+    // public function FiberAmount($day, $id): int {
 
-        $query = $this->pdo->prepare("
-            SELECT SUM(fiber) AS tot
-            FROM meals
-            WHERE user_id = ? AND date = ?
-        ");
+    //     $query = $this->pdo->prepare("
+    //         SELECT SUM(fiber) AS tot
+    //         FROM meals
+    //         WHERE user_id = ? AND date = ?
+    //     ");
 
-        $query->execute([$id, $day]);
+    //     $query->execute([$id, $day]);
 
-        $res = $query->fetch(PDO::FETCH_ASSOC);
+    //     $res = $query->fetch(PDO::FETCH_ASSOC);
 
-        return (int)($res['tot'] ?? 0);
-    }
-
+    //     return (int)($res['tot'] ?? 0);
+    // }
+    
     // water glasses
     public function nbreGlassesForToday($date, $id): int {
 
@@ -140,13 +141,20 @@ class Dashboard implements IDashboard {
 
     // traja3lk tous les exercice li t3amlou lyoum
     public function exercice_today($date,$id){
-        $query = $this->prepare("
+        $query = $this->pdo->prepare("
             select * from exercise_logs
             where id= ? and date = ?
         ");
         $query->execute([$id,$date]);
         $res = $query->fetchAll(PDO::FETCH_ASSOC);
         return $res;
+    }
+
+    #[Override]
+    public function FiberAmount($day, $id): int
+    {
+        
+        return 1;
     }
 }
 ?>

@@ -9,8 +9,9 @@
   endif;
   $date = new DateTime();
   $date_formated = $date->format("Y-m-d");
+  $date_formated = '2026-05-24';
   $name= $_SESSION["username"] ?? "rayen";
-  $id = $_SESSION["id"] ?? 5;
+  $id = 1;
   $dashboard = new Dashboard();
   $calories_consumed = $dashboard->caloriesConsumed($date_formated,$id);
   $calories_burned = $dashboard->caloriesBurned($date_formated,$id);
@@ -24,15 +25,23 @@
   $remaining_calories = 2700 - $calories_consumed;
   $calories_consumed_yesterday = $dashboard->caloriesConsumed($yesterday,$id);
   $pourcentage_steps = $steps * 100 / 10000; 
-  echo "<br>{$calories_burned}<br>";
+  $pourcentage_today_yesterday_consumed_calories = 0;
   // calcul de calorie consumed w choix de couleur de label
-  if($calories_consumed - $calories_consumed_yesterday >0){
-    $label_color = "green";
-    $pourcentage_today_yesterday_consumed_calories = $calories_consumed*100 / $calories_consumed_yesterday;
-  }else{
-    $label_color="red";
-    $pourcentage_today_yesterday_consumed_calories = -($calories_consumed_yesterday - $calories_consumed)*100 / $calories_consumed_yesterday; 
-  }
+  echo $calories_consumed;
+
+  // if($calories_consumed - $calories_consumed_yesterday >0){
+  //   $label_color = "green";
+  //   try{
+  //     $pourcentage_today_yesterday_consumed_calories = $calories_consumed*100 / $calories_consumed_yesterday;
+  //   }catch(Exception $e){echo $e->getMessage();}
+  // }else{
+  //   $label_color="red";
+  //   try{
+  //     $pourcentage_today_yesterday_consumed_calories = -($calories_consumed_yesterday - $calories_consumed)*100 / $calories_consumed_yesterday; 
+  //   }catch(Exception $e){
+  //     echo $e->getMessage();  
+  //   }
+  // }
 
   $array_of_exercice = $dashboard->exercice_today($date_formated,$id);
 
@@ -112,7 +121,7 @@
   <!-- MAIN CONTENT -->
   <main class="main">
     <div class="main__header">
-      <h1 class="main__title">Dashboard</h1>
+      <h1 class="main__title">Dashboard   <?= $calories_consumed ?></h1>
       <?= "<p class='main__subtitle'>" . $date->format("l, F d, Y") . " — Welcome back, " . $name . "! </p>" ?>
     </div>
 
