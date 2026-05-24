@@ -10,6 +10,9 @@ ensure_authenticated($pdo, '/food.php');
 
 require_once __DIR__ . '/backend/food_repository.php';
 
+$name = get_user_name();
+$avatarInitials = get_user_initials($name);
+
 function e(string $value): string
 {
     return htmlspecialchars($value, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8');
@@ -74,7 +77,9 @@ function build_query(array $overrides): string
                 </svg>
                 <span class="navbar__badge"></span>
             </button>
-            <div class="navbar__avatar" title="User">JD</div>
+            <div class="navbar__avatar" title="<?= htmlspecialchars((string)$name) ?>">
+                <?= htmlspecialchars($avatarInitials) ?>
+            </div>
         </div>
     </nav>
 

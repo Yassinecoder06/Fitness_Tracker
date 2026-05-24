@@ -7,15 +7,8 @@ $pdo = get_pdo();
 ensure_authenticated($pdo, '/progress.php');
 
 $user_id = $_SESSION['user_id'];
-$name = $_SESSION['user_name'] ?? 'User';
-
-$avatarInitials = 'U';
-$nameParts = preg_split('/\s+/', trim((string)$name));
-if (!empty($nameParts)) {
-  $first = $nameParts[0] ?? '';
-  $last = $nameParts[count($nameParts) - 1] ?? '';
-  $avatarInitials = strtoupper(substr($first, 0, 1) . substr($last, 0, 1));
-}
+$name = get_user_name();
+$avatarInitials = get_user_initials($name);
 
 $weight_error = null;
 $weight_success = false;

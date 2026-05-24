@@ -9,6 +9,8 @@ ensure_authenticated($pdo, '/diary.php');
 
 $pdo->exec("SET TIME ZONE 'Africa/Tunis';");
 $user_id = $_SESSION['user_id'];
+$name = get_user_name();
+$avatarInitials = get_user_initials($name);
 
 $selected_date = $_GET['date'] ?? date('Y-m-d');
 $display_date = date('l, F j Y', strtotime($selected_date));
@@ -216,7 +218,9 @@ $goal_cal = 2200;
                 </svg>
                 <span class="navbar__badge"></span>
             </button>
-            <div class="navbar__avatar" title="User">JD</div>
+            <div class="navbar__avatar" title="<?= htmlspecialchars((string)$name) ?>">
+                <?= htmlspecialchars($avatarInitials) ?>
+            </div>
         </div>
     </nav>
 

@@ -74,3 +74,20 @@ function ensure_authenticated(PDO $pdo, string $redirectPath = '/index.php'): vo
         exit;
     }
 }
+
+function get_user_name(): string
+{
+    return $_SESSION['user_name'] ?? 'User';
+}
+
+function get_user_initials(string $name): string
+{
+    $initials = 'U';
+    $nameParts = preg_split('/\s+/', trim($name));
+    if (!empty($nameParts) && $nameParts[0] !== '') {
+        $first = $nameParts[0];
+        $last = count($nameParts) > 1 ? $nameParts[count($nameParts) - 1] : '';
+        $initials = strtoupper(substr($first, 0, 1) . ($last !== '' ? substr($last, 0, 1) : ''));
+    }
+    return $initials;
+}

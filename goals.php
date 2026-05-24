@@ -33,15 +33,8 @@ $goals = $stmt->fetch();
 $curr_weight = $goals['target_weight'] ?? '';
 $curr_cals = $goals['daily_calories'] ?? '';
 $curr_workouts = $goals['weekly_workouts'] ?? '';
-$name = $_SESSION['user_name'] ?? 'User';
-
-$avatarInitials = 'U';
-$nameParts = preg_split('/\s+/', trim((string)$name));
-if (!empty($nameParts)) {
-    $first = $nameParts[0] ?? '';
-    $last = $nameParts[count($nameParts) - 1] ?? '';
-    $avatarInitials = strtoupper(substr($first, 0, 1) . substr($last, 0, 1));
-}
+$name = get_user_name();
+$avatarInitials = get_user_initials($name);
 ?>
 <!DOCTYPE html>
 <html lang="en">
