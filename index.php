@@ -1,3 +1,43 @@
+<?php
+  session_start();
+  require_once "./backend/dashboard_repository.php";
+  // if(isset($_SESSION['username'])==false) :
+
+  if(isset($_SESSION['username'])!=false) : // badel el test ki tabda 3ana el auth
+    header("Location: login.php");
+    exit;
+  endif;
+  $date = new DateTime();
+  $date_formated = $date->format("Y-m-d");
+  $name= $_SESSION["username"] ?? "rayen";
+  $id = $_SESSION["id"] ?? 5;
+  $dashboard = new Dashboard();
+  $calories_consumed = $dashboard->caloriesConsumed($date_formated,$id);
+  $calories_burned = $dashboard->caloriesBurned($date_formated,$id);
+  $steps = $dashboard->stepsToday($date_formated,$id);
+  $calurie_budget = $dashboard->caloriesBudget($date_formated,$id);
+  $prot = $dashboard->ProteinAmount($date_formated,$id);
+  $carb = $dashboard->CarbsAmount($date_formated,$id);
+  $fat = $dashboard->FatAmount($date_formated,$id);
+  $fiber = $dashboard->FiberAmount($date_formated,$id);
+  $yesterday = date('Y-m-d', strtotime('-1 day'));
+  $remaining_calories = 2700 - $calories_consumed;
+  $calories_consumed_yesterday = $dashboard->caloriesConsumed($yesterday,$id);
+  $pourcentage_steps = $steps * 100 / 10000; 
+  echo "<br>{$calories_burned}<br>";
+  // calcul de calorie consumed w choix de couleur de label
+  if($calories_consumed - $calories_consumed_yesterday >0){
+    $label_color = "green";
+    $pourcentage_today_yesterday_consumed_calories = $calories_consumed*100 / $calories_consumed_yesterday;
+  }else{
+    $label_color="red";
+    $pourcentage_today_yesterday_consumed_calories = -($calories_consumed_yesterday - $calories_consumed)*100 / $calories_consumed_yesterday; 
+  }
+
+  $array_of_exercice = $dashboard->exercice_today($date_formated,$id);
+
+?>
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -73,7 +113,7 @@
   <main class="main">
     <div class="main__header">
       <h1 class="main__title">Dashboard</h1>
-      <p class="main__subtitle">Wednesday, February 12, 2026 — Welcome back, John!</p>
+      <?= "<p class='main__subtitle'>" . $date->format("l, F d, Y") . " — Welcome back, " . $name . "! </p>" ?>
     </div>
 
     <!-- STAT CARDS -->
@@ -84,7 +124,7 @@
         </div>
         <div class="stat-card__info">
           <div class="stat-card__label">Calories Remaining</div>
-          <div class="stat-card__value" data-count="1250">0</div>
+          <div class="stat-card__value" data-count="<?= $remaining_calories ?>">0</div>
           <div class="stat-card__change stat-card__change--up">↑ On track</div>
         </div>
       </div>
@@ -94,8 +134,8 @@
         </div>
         <div class="stat-card__info">
           <div class="stat-card__label">Calories Consumed</div>
-          <div class="stat-card__value" data-count="1450">0</div>
-          <div class="stat-card__change stat-card__change--up">↑ 12% vs yesterday</div>
+          <div class="stat-card__value" data-count="<?= $calories_consumed ?>">0</div>
+          <div class="stat-card__change stat-card__change--up" style="color: <?= $label_color ?>;">↑ <?= $pourcentage_today_yesterday_consumed_calories ?> vs yesterday</div>
         </div>
       </div>
       <div class="stat-card animate-in">
@@ -104,7 +144,7 @@
         </div>
         <div class="stat-card__info">
           <div class="stat-card__label">Calories Burned</div>
-          <div class="stat-card__value" data-count="680">0</div>
+          <div class="stat-card__value" data-count="<?= $calories_burned ?>">0</div>
           <div class="stat-card__change stat-card__change--up">↑ Great pace!</div>
         </div>
       </div>
@@ -114,8 +154,8 @@
         </div>
         <div class="stat-card__info">
           <div class="stat-card__label">Steps Today</div>
-          <div class="stat-card__value" data-count="8420">0</div>
-          <div class="stat-card__change stat-card__change--up">↑ 84% of goal</div>
+          <div class="stat-card__value" data-count="<?= $steps ?>">0</div>
+          <div class="stat-card__change stat-card__change--up">↑ <?= $pourcentage_steps ?>% of goal</div>
         </div>
       </div>
     </div>
@@ -136,7 +176,7 @@
             <circle class="calorie-ring__fill" cx="90" cy="90" r="80" data-percent="54"/>
           </svg>
           <div class="calorie-ring__center">
-            <div class="calorie-ring__number">1,250</div>
+            <div class="calorie-ring__number"><?= $remaining_calories ?></div>
             <div class="calorie-ring__text">remaining</div>
           </div>
           <div class="calorie-ring__footer">
@@ -167,37 +207,37 @@
         <div class="progress-bar-group">
           <div class="progress-bar__header">
             <span class="progress-bar__label">🥩 Protein</span>
-            <span class="progress-bar__value">85g / 150g</span>
+            <span class="progress-bar__value"><?= $prot ?>g / 150g</span>
           </div>
           <div class="progress-bar">
-            <div class="progress-bar__fill progress-bar__fill--blue" data-width="57"></div>
+            <div class="progress-bar__fill progress-bar__fill--blue" data-width="<?= $prot * 100 / 150 ?>"></div>
           </div>
         </div>
         <div class="progress-bar-group">
           <div class="progress-bar__header">
             <span class="progress-bar__label">🍞 Carbs</span>
-            <span class="progress-bar__value">180g / 300g</span>
+            <span class="progress-bar__value"><?= $carb ?>g / 300g</span>
           </div>
           <div class="progress-bar">
-            <div class="progress-bar__fill progress-bar__fill--orange" data-width="60"></div>
+            <div class="progress-bar__fill progress-bar__fill--orange" data-width="<?= $carb*100/300 ?>"></div>
           </div>
         </div>
         <div class="progress-bar-group">
           <div class="progress-bar__header">
             <span class="progress-bar__label">🥑 Fat</span>
-            <span class="progress-bar__value">45g / 80g</span>
+            <span class="progress-bar__value"><?= $fat ?>g / 80g</span>
           </div>
           <div class="progress-bar">
-            <div class="progress-bar__fill progress-bar__fill--red" data-width="56"></div>
+            <div class="progress-bar__fill progress-bar__fill--red" data-width="<?= $fat * 100 / 80 ?>"></div>
           </div>
         </div>
         <div class="progress-bar-group">
           <div class="progress-bar__header">
             <span class="progress-bar__label">💧 Fiber</span>
-            <span class="progress-bar__value">18g / 30g</span>
+            <span class="progress-bar__value"><?= $fiber ?>g / 30g</span>
           </div>
           <div class="progress-bar">
-            <div class="progress-bar__fill progress-bar__fill--green" data-width="60"></div>
+            <div class="progress-bar__fill progress-bar__fill--green" data-width="<?= $fiber * 100 / 30 ?>"></div>
           </div>
         </div>
       </div>
@@ -304,7 +344,7 @@
           <h2 class="card__title">Exercise Summary</h2>
           <p class="card__subtitle">Today's activities</p>
         </div>
-        <a href="exercise.php" class="card__action">View All →</a>
+        <!-- <a href="exercise.php" class="card__action">View All →</a> -->
       </div>
       <table class="data-table">
         <thead>
@@ -316,7 +356,21 @@
           </tr>
         </thead>
         <tbody>
-          <tr>
+          // remplir le contenue du tablea with element from db table : exercise_logs 
+          <?php
+            foreach($array_of_exercice as $exercice ){
+              echo <<<TEXT
+                <tr>
+                  <td><strong>{$exercice["exercise_name"]}</strong></td>
+                  <td><span class="table-tag table-tag--cardio">Cardio</span></td>
+                  <td>{$exercice["duration"]} min</td>
+                  <td><strong>{$exercice["calories_burned"]} kcal</strong></td>
+                </tr>
+              TEXT;
+              }
+          ?>
+
+          <!--<tr>
             <td><strong>Morning Run</strong></td>
             <td><span class="table-tag table-tag--cardio">Cardio</span></td>
             <td>35 min</td>
@@ -333,7 +387,7 @@
             <td><span class="table-tag table-tag--flexibility">Flexibility</span></td>
             <td>20 min</td>
             <td><strong>80 kcal</strong></td>
-          </tr>
+          </tr> -->
         </tbody>
       </table>
     </div>
@@ -342,4 +396,4 @@
   <script src="js/main.js"></script>
 </body>
 </html>
-</html>
+
