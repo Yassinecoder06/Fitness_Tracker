@@ -40,10 +40,13 @@ function get_pdo(): PDO
     $poolerDsn = env_or_throw($dsnKey);
     $poolerUser = env_or_throw($userKey);
     $poolerPass = env_or_throw($passKey);
+    // Cloud Supabase uses PgBouncer in transaction mode, which does NOT
+    // support server-side prepared statements. We must enable emulated
+    // prepares for cloud connections; local can keep server-side prepares.
     $pdo = new PDO($poolerDsn, $poolerUser, $poolerPass, [
         PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,
         PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC,
-        PDO::ATTR_EMULATE_PREPARES => false,
+        PDO::ATTR_EMULATE_PREPARES => $useCloud,
     ]);
 
     return $pdo;

@@ -44,6 +44,7 @@ function sanitize_exercise_payload(array $input): array
         'category' => $category,
         'duration_minutes' => $duration,
         'calories_burned' => $calories,
+        'exercise_id' => $exerciseId,
     ];
 }
 
@@ -56,11 +57,20 @@ function insert_exercise(array $payload, int $userId): array
         throw new RuntimeException('Exercise name is required.');
     }
 
-    $sql = "
-        insert into public.exercises (user_id, name, category, duration_minutes, calories_burned, logged_at)
-        values (:user_id, :name, :category, :duration_minutes, :calories_burned, now())
-        returning id, name, category, duration_minutes, calories_burned, logged_at
-    ";
+    // Build column/value lists — user_id always exists per migration schema
+    $columns = ['user_id', 'name', 'category', 'duration_minutes', 'calories_burned', 'logged_at'];
+    $values  = [':user_id', ':name', ':category', ':duration_minutes', ':calories_burned', 'now()'];
+
+    if (!empty($data['exercise_id'])) {
+        $columns[] = 'exercise_id';
+        $values[]  = ':exercise_id';
+    }
+
+    $sql = sprintf(
+        "INSERT INTO public.exercises (%s) VALUES (%s) RETURNING id, name, category, duration_minutes, calories_burned, logged_at",
+        implode(', ', $columns),
+        implode(', ', $values)
+    );
 
     $stmt = $pdo->prepare($sql);
     $stmt->bindValue(':user_id', $userId, PDO::PARAM_INT);
@@ -68,6 +78,9 @@ function insert_exercise(array $payload, int $userId): array
     $stmt->bindValue(':category', $data['category']);
     $stmt->bindValue(':duration_minutes', $data['duration_minutes'], PDO::PARAM_INT);
     $stmt->bindValue(':calories_burned', $data['calories_burned']);
+    if (!empty($data['exercise_id'])) {
+        $stmt->bindValue(':exercise_id', $data['exercise_id']);
+    }
     $stmt->execute();
 
     $row = $stmt->fetch();
@@ -80,11 +93,11 @@ function fetch_recent_exercises(int $userId, int $limit = 5): array
     $limit = max(1, min(20, $limit));
 
     $sql = "
-        select name, category, duration_minutes, calories_burned, logged_at
-        from public.exercises
-        where user_id = :user_id
-        order by logged_at desc, created_at desc
-        limit :limit
+        SELECT name, category, duration_minutes, calories_burned, logged_at
+        FROM public.exercises
+        WHERE user_id = :user_id
+        ORDER BY logged_at DESC, created_at DESC
+        LIMIT :limit
     ";
 
     $stmt = $pdo->prepare($sql);
@@ -100,9 +113,9 @@ function fetch_exercise_category_counts(): array
     $pdo = get_pdo();
 
     $sql = "
-        select category, count(*) as total
-        from public.exercises
-        group by category
+        SELECT category, count(*) AS total
+        FROM public.exercises
+        GROUP BY category
     ";
 
     $stmt = $pdo->query($sql);
@@ -124,9 +137,9 @@ function fetch_exercise_library_counts(): array
     $pdo = get_pdo();
 
     $sql = "
-        select category, count(*) as total
-        from public.exercise_library
-        group by category
+        SELECT category, count(*) AS total
+        FROM public.exercise_library
+        GROUP BY category
     ";
 
     $stmt = $pdo->query($sql);
@@ -153,10 +166,10 @@ function fetch_exercise_library(?string $category): array
     }
 
     $sql = "
-        select id, name, category, instructions
-        from public.exercise_library
-        where category = :category
-        order by name asc
+        SELECT id, name, category, instructions
+        FROM public.exercise_library
+        WHERE category = :category
+        ORDER BY name ASC
     ";
 
     $stmt = $pdo->prepare($sql);
