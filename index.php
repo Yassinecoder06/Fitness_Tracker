@@ -1,40 +1,43 @@
 <?php
-  session_start();
-  require_once "./backend/dashboard_repository.php";
-  // if(isset($_SESSION['username'])==false) :
+declare(strict_types=1);
 
-  if(isset($_SESSION['username'])!=false) : // badel el test ki tabda 3ana el auth
-    header("Location: login.php");
-    exit;
-  endif;
-  $date = new DateTime();
-  $date_formated = $date->format("Y-m-d");
-  $name= $_SESSION["username"] ?? "rayen";
-  $id = $_SESSION["id"] ?? 5;
-  $dashboard = new Dashboard();
-  $calories_consumed = $dashboard->caloriesConsumed($date_formated,$id);
-  $calories_burned = $dashboard->caloriesBurned($date_formated,$id);
-  $steps = $dashboard->stepsToday($date_formated,$id);
-  $calurie_budget = $dashboard->caloriesBudget($date_formated,$id);
-  $prot = $dashboard->ProteinAmount($date_formated,$id);
-  $carb = $dashboard->CarbsAmount($date_formated,$id);
-  $fat = $dashboard->FatAmount($date_formated,$id);
-  $yesterday = date('Y-m-d', strtotime('-1 day'));
-  $remaining_calories = 2700 - $calories_consumed;
-  $calories_consumed_yesterday = $dashboard->caloriesConsumed($yesterday,$id);
-  $pourcentage_steps = $steps * 100 / 10000; 
-  // calcul de calorie consumed w choix de couleur de label
-  if ($calories_consumed_yesterday > 0) {
-    $diff = $calories_consumed - $calories_consumed_yesterday;
-    $label_color = $diff >= 0 ? "green" : "red";
-    $pourcentage_today_yesterday_consumed_calories = ($diff * 100) / $calories_consumed_yesterday;
-  } else {
-    $label_color = "green";
-    $pourcentage_today_yesterday_consumed_calories = 0;
-  }
+require_once __DIR__ . '/backend/bootstrap.php';
+require_once __DIR__ . '/backend/db.php';
+require_once __DIR__ . '/backend/auth.php';
+require_once __DIR__ . '/backend/dashboard_repository.php';
 
-  $array_of_exercice = $dashboard->exercice_today($date_formated,$id);
+$pdo = get_pdo();
+ensure_authenticated($pdo, '/index.php');
 
+$date = new DateTime();
+$date_formated = $date->format('Y-m-d');
+$name = $_SESSION['user_name'] ?? 'User';
+$id = $_SESSION['user_id'] ?? 0;
+
+$dashboard = new Dashboard();
+$calories_consumed = $dashboard->caloriesConsumed($date_formated, $id);
+$calories_burned = $dashboard->caloriesBurned($date_formated, $id);
+$steps = $dashboard->stepsToday($date_formated, $id);
+$calurie_budget = $dashboard->caloriesBudget($date_formated, $id);
+$prot = $dashboard->ProteinAmount($date_formated, $id);
+$carb = $dashboard->CarbsAmount($date_formated, $id);
+$fat = $dashboard->FatAmount($date_formated, $id);
+$yesterday = date('Y-m-d', strtotime('-1 day'));
+$remaining_calories = 2700 - $calories_consumed;
+$calories_consumed_yesterday = $dashboard->caloriesConsumed($yesterday, $id);
+$pourcentage_steps = $steps * 100 / 10000;
+
+// calcul de calorie consumed w choix de couleur de label
+if ($calories_consumed_yesterday > 0) {
+  $diff = $calories_consumed - $calories_consumed_yesterday;
+  $label_color = $diff >= 0 ? 'green' : 'red';
+  $pourcentage_today_yesterday_consumed_calories = ($diff * 100) / $calories_consumed_yesterday;
+} else {
+  $label_color = 'green';
+  $pourcentage_today_yesterday_consumed_calories = 0;
+}
+
+$array_of_exercice = $dashboard->exercice_today($date_formated, $id);
 ?>
 
 <!DOCTYPE html>
