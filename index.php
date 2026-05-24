@@ -16,7 +16,6 @@ $id = $_SESSION['user_id'] ?? 0;
 $dashboard = new Dashboard();
 $calories_consumed = $dashboard->caloriesConsumed($date_formatted, $id);
 $calories_burned = $dashboard->caloriesBurned($date_formatted, $id);
-$steps = $dashboard->stepsToday($date_formatted, $id);
 $calorie_budget = $dashboard->caloriesBudget($date_formatted, $id);
 $calorie_budget = $calorie_budget > 0 ? $calorie_budget : 2700;
 $prot = $dashboard->ProteinAmount($date_formatted, $id);
@@ -25,7 +24,6 @@ $fat = $dashboard->FatAmount($date_formatted, $id);
 $yesterday = date('Y-m-d', strtotime('-1 day'));
 $calories_consumed_yesterday = $dashboard->caloriesConsumed($yesterday, $id);
 $remaining_calories = max(0, $calorie_budget - $calories_consumed);
-$pourcentage_steps = $steps * 100 / 10000;
 
 if ($calories_consumed_yesterday > 0) {
   $diff = $calories_consumed - $calories_consumed_yesterday;
@@ -195,16 +193,6 @@ $avatarInitials = get_user_initials($name);
           <div class="stat-card__label">Calories Burned</div>
           <div class="stat-card__value" data-count="<?= $calories_burned ?>">0</div>
           <div class="stat-card__change stat-card__change--up">&uarr; Great pace!</div>
-        </div>
-      </div>
-      <div class="stat-card animate-in">
-        <div class="stat-card__icon stat-card__icon--orange">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/></svg>
-        </div>
-        <div class="stat-card__info">
-          <div class="stat-card__label">Steps Today</div>
-          <div class="stat-card__value" data-count="<?= $steps ?>">0</div>
-          <div class="stat-card__change stat-card__change--up">&uarr; <?= round($pourcentage_steps) ?>% of goal</div>
         </div>
       </div>
     </div>
