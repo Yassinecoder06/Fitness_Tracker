@@ -302,7 +302,7 @@ if (!empty($nameParts)) {
       <div class="meal-card animate-in">
         <div class="meal-card__header">
           <div class="meal-card__type">
-            <span class="meal-card__emoji">AM</span>
+            <span class="meal-card__emoji">🌅</span>
             <div>
               <div class="meal-card__name">Breakfast</div>
               <div class="meal-card__cals"><?= $sum_cal_morning ?> kcal</div>
@@ -332,7 +332,7 @@ if (!empty($nameParts)) {
       <div class="meal-card animate-in">
         <div class="meal-card__header">
           <div class="meal-card__type">
-            <span class="meal-card__emoji">Noon</span>
+            <span class="meal-card__emoji">☀️</span>
             <div>
               <div class="meal-card__name">Lunch</div>
               <div class="meal-card__cals"><?= $sum_cal_launch ?> kcal</div>
@@ -365,7 +365,7 @@ if (!empty($nameParts)) {
       <div class="meal-card animate-in">
         <div class="meal-card__header">
           <div class="meal-card__type">
-            <span class="meal-card__emoji">PM</span>
+            <span class="meal-card__emoji">🌙</span>
             <div>
               <div class="meal-card__name">Dinner</div>
               <div class="meal-card__cals"><?= $sum_cal_dinner ?> kcal</div>
@@ -395,7 +395,7 @@ if (!empty($nameParts)) {
       <div class="meal-card animate-in">
         <div class="meal-card__header">
           <div class="meal-card__type">
-            <span class="meal-card__emoji">Snack</span>
+            <span class="meal-card__emoji">🍎</span>
             <div>
               <div class="meal-card__name">Snacks</div>
               <div class="meal-card__cals"><?= $sum_cal_snack ?> kcal</div>
