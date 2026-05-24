@@ -9,7 +9,6 @@
         public function ProteinAmount($day,$id) : int;
         public function CarbsAmount($day,$id) : int;
         public function FatAmount($day,$id): int ;
-        public function FiberAmount($day,$id) : int;
         public function exercice_today($date,$id);
 
         
