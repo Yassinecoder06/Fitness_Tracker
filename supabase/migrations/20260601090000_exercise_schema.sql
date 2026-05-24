@@ -25,6 +25,7 @@ $$;
 
 create table if not exists public.exercises (
   id uuid primary key default gen_random_uuid(),
+  user_id bigint not null references public.users(id) on delete cascade,
   name text not null,
   category public.exercise_category not null,
   duration_minutes integer not null check (duration_minutes > 0),
@@ -34,6 +35,7 @@ create table if not exists public.exercises (
   updated_at timestamptz not null default now()
 );
 
+create index if not exists idx_exercises_user_logged_at on public.exercises (user_id, logged_at desc);
 create index if not exists idx_exercises_category on public.exercises (category);
 create index if not exists idx_exercises_logged_at on public.exercises (logged_at desc);
 create index if not exists idx_exercises_created_at on public.exercises (created_at desc);

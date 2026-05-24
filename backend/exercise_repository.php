@@ -44,7 +44,6 @@ function sanitize_exercise_payload(array $input): array
         'category' => $category,
         'duration_minutes' => $duration,
         'calories_burned' => $calories,
-        'exercise_id' => $exerciseId,
     ];
 }
 
@@ -58,8 +57,8 @@ function insert_exercise(array $payload, int $userId): array
     }
 
     $sql = "
-        insert into public.exercises (user_id, name, category, duration_minutes, calories_burned, logged_at, exercise_id)
-        values (:user_id, :name, :category, :duration_minutes, :calories_burned, now(), :exercise_id)
+        insert into public.exercises (user_id, name, category, duration_minutes, calories_burned, logged_at)
+        values (:user_id, :name, :category, :duration_minutes, :calories_burned, now())
         returning id, name, category, duration_minutes, calories_burned, logged_at
     ";
 
@@ -69,7 +68,6 @@ function insert_exercise(array $payload, int $userId): array
     $stmt->bindValue(':category', $data['category']);
     $stmt->bindValue(':duration_minutes', $data['duration_minutes'], PDO::PARAM_INT);
     $stmt->bindValue(':calories_burned', $data['calories_burned']);
-    $stmt->bindValue(':exercise_id', $data['exercise_id']);
     $stmt->execute();
 
     $row = $stmt->fetch();
