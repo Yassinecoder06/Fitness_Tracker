@@ -71,7 +71,6 @@ if($calories_consumed_yesterday != 0){
     $sum_cal_dinner += $meal['calories'];
   }
 ?>
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -122,6 +121,7 @@ if($calories_consumed_yesterday != 0){
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg>
         Diary
       </a>
+
       <a href="food.php" class="sidebar__link">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8h1a4 4 0 0 1 0 8h-1"/><path d="M2 8h16v9a4 4 0 0 1-4 4H6a4 4 0 0 1-4-4V8z"/><line x1="6" y1="1" x2="6" y2="4"/><line x1="10" y1="1" x2="10" y2="4"/><line x1="14" y1="1" x2="14" y2="4"/></svg>
         Food
@@ -130,6 +130,15 @@ if($calories_consumed_yesterday != 0){
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14.4 14.4L9.6 9.6"/><path d="M18.657 21.485a2 2 0 1 1-2.829-2.828l-1.767-1.768a2 2 0 1 1-2.829-2.829l-1.767-1.767a2 2 0 1 1-2.829-2.829L4.869 7.697a2 2 0 1 1 2.828-2.829l1.768 1.768a2 2 0 1 1 2.828 2.829l1.768 1.767a2 2 0 1 1 2.828 2.829l1.768 1.767a2 2 0 1 1-2.828 2.829z"/></svg>
         Exercise
       </a>
+     <?php if (isset($_SESSION['user_id'])): ?>
+  <a href="logout.php" class="sidebar__link">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/>
+      <path d="M16 16l4-4m0 0l-4-4m4 4H9"/>
+    </svg>
+    Logout
+  </a>
+<?php endif; ?>
 
       <span class="sidebar__section-title">Analytics</span>
       <a href="progress.php" class="sidebar__link">
@@ -169,7 +178,9 @@ if($calories_consumed_yesterday != 0){
         <div class="stat-card__info">
           <div class="stat-card__label">Calories Consumed</div>
           <div class="stat-card__value" data-count="<?= $calories_consumed ?>">0</div>
-          <div class="stat-card__change stat-card__change--up" style="color: <?= $label_color ?>;">↑ <?= $pourcentage_today_yesterday_consumed_calories ?> vs yesterday</div>
+          <div class="stat-card__change stat-card__change--up" style="color: <?= $label_color ?>;">
+            ↑ <?= $pourcentage_today_yesterday_consumed_calories ?>% vs yesterday
+          </div>
         </div>
       </div>
       <div class="stat-card animate-in">
@@ -420,7 +431,7 @@ if($calories_consumed_yesterday != 0){
           <h2 class="card__title">Exercise Summary</h2>
           <p class="card__subtitle">Today's activities</p>
         </div>
-        <!-- <a href="exercise.php" class="card__action">View All →</a> -->
+  <a href="exercise.php" class="card__action">View All →</a>
       </div>
       <table class="data-table">
         <thead>
@@ -432,6 +443,7 @@ if($calories_consumed_yesterday != 0){
           </tr>
         </thead>
         <tbody>
+          <!-- fill table content with exercise_logs entries -->
           <?php
             foreach($array_of_exercice as $exercice ){
               echo <<<TEXT
@@ -471,4 +483,3 @@ if($calories_consumed_yesterday != 0){
   <script src="js/main.js"></script>
 </body>
 </html>
-

@@ -1,15 +1,14 @@
 <?php
 
-session_start();
-$_SESSION['user_id'] = 1; // test
-if(!isset($_SESSION['user_id'])) {
-    header('Location: login.php');
-    exit;
-}
 require_once __DIR__ . '/backend/bootstrap.php';
 require_once __DIR__ . '/backend/db.php';
+require_once __DIR__ . '/backend/auth.php';
+
 $pdo = get_pdo();
-$user_id = $_SESSION['user_id']; 
+ensure_authenticated($pdo, '/diary.php');
+
+$pdo->exec("SET TIME ZONE 'Africa/Tunis';");
+$user_id = $_SESSION['user_id'];
 
 $selected_date = $_GET['date'] ?? date('Y-m-d');
 $display_date = date('l, F j Y', strtotime($selected_date));
@@ -264,6 +263,13 @@ $goal_cal = 2200;
                 </svg>
                 Exercise
             </a>
+            <a href="logout.php" class="sidebar__link">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/>
+                  <path d="M16 16l4-4m0 0l-4-4m4 4H9"/>
+                </svg>
+            Logout <?= htmlspecialchars($_SESSION['user_name'] ?? 'User') ?>
+             </a>
             <span class="sidebar__section-title">Analytics</span>
             <a href="progress.php" class="sidebar__link">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
@@ -338,10 +344,10 @@ $goal_cal = 2200;
       <div class="summary-sub">Eaten − Burned</div>
     </div>
     <div class="summary-card">
-      <div class="summary-value" style="color:var(--accent-teal)"><?= $water_glasses ?><small style="font-size:1rem;color:var(--gray-400)">/8</small></div>
+      <div class="summary-value" id="waterGlasses" style="color:var(--accent-teal)"><?= $water_glasses ?><small style="font-size:1rem;color:var(--gray-400)">/8</small></div>
       <div class="summary-label">Water</div>
       <div class="progress-bar-wrap"><div class="progress-bar" style="width:<?= $water_glasses/8*100 ?>%;background:var(--accent-teal)"></div></div>
-      <div class="summary-sub"><?= 8-$water_glasses ?> glasses to go</div>
+      <div class="summary-sub" id="bilanwater"><?= 8-$water_glasses ?> glasses to go</div>
     </div>
   </div>
  
@@ -668,8 +674,17 @@ function toggleGlass(el){
   });
   const n=document.querySelectorAll('.glass.filled').length;
   document.getElementById('waterCount').textContent=n;
+
   document.getElementById('waterLitres').textContent=(n*.25).toFixed(2);
-  saveWater(); 
+ const pourcentage = (n / 8) * 100;
+            const waterProgressBar = document.querySelector('.summary-card .progress-bar[style*="accent-teal"]');
+                if (waterProgressBar) {
+                    waterProgressBar.style.width = pourcentage + '%';
+                }
+                document.getElementById("bilanwater").textContent = 8-n+" glasses to go";
+  document.getElementById('waterGlasses').innerHTML =
+  `${n}<small style="font-size:1rem;color:var(--gray-400)">/8</small>`;
+saveWater();
 }
  
 /* Add Meal */
@@ -725,7 +740,7 @@ function deleteExercise(id){
 function saveNotes(){
   const notes=document.getElementById('notesArea').value;
   fetch('diary.php',{method:'POST',headers:{'Content-Type':'application/x-www-form-urlencoded'},
-    body:new URLSearchParams({action:'save_notes',notes,date:new URLSearchParams(location.search).get('date')||new Date().toISOString().split('T')[0]})})
+    body:new URLSearchParams({action:'save_notes',notes,date:new URLSearchParams(location.search).get('date')||new Date().toLocaleDateString('en-CA')})})
     .then(r=>r.json()).then(d=>{if(d.success)location.reload();}).then(()=>showToast('Notes saved!'))
     .catch(()=>showToast('Notes not saved (demo mode)'));
 }
