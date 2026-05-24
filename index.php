@@ -1,10 +1,19 @@
+<?php
+declare(strict_types=1);
 
+require_once __DIR__ . '/backend/bootstrap.php';
+require_once __DIR__ . '/backend/db.php';
+require_once __DIR__ . '/backend/auth.php';
+
+$pdo = get_pdo();
+ensure_authenticated($pdo, '/index.php');
+?>
 <!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta name="description" content="FitTrack Dashboard — Track your daily calories, meals, exercises, and nutrition goals.">
+  <meta name="description" content="FitTrack Dashboard â€” Track your daily calories, meals, exercises, and nutrition goals.">
   <title>FitTrack | Dashboard</title>
   <link rel="stylesheet" href="css/style.css">
 </head>
@@ -84,7 +93,7 @@
   <main class="main">
     <div class="main__header">
       <h1 class="main__title">Dashboard</h1>
-      <p class="main__subtitle">Wednesday, February 12, 2026 — Welcome back, John!</p>
+      <p class="main__subtitle">Wednesday, February 12, 2026 â€” Welcome back, John!</p>
     </div>
 
     <!-- STAT CARDS -->
@@ -96,7 +105,7 @@
         <div class="stat-card__info">
           <div class="stat-card__label">Calories Remaining</div>
           <div class="stat-card__value" data-count="1250">0</div>
-          <div class="stat-card__change stat-card__change--up">↑ On track</div>
+          <div class="stat-card__change stat-card__change--up">â†‘ On track</div>
         </div>
       </div>
       <div class="stat-card animate-in">
@@ -106,7 +115,7 @@
         <div class="stat-card__info">
           <div class="stat-card__label">Calories Consumed</div>
           <div class="stat-card__value" data-count="1450">0</div>
-          <div class="stat-card__change stat-card__change--up">↑ 12% vs yesterday</div>
+          <div class="stat-card__change stat-card__change--up">â†‘ 12% vs yesterday</div>
         </div>
       </div>
       <div class="stat-card animate-in">
@@ -116,7 +125,7 @@
         <div class="stat-card__info">
           <div class="stat-card__label">Calories Burned</div>
           <div class="stat-card__value" data-count="680">0</div>
-          <div class="stat-card__change stat-card__change--up">↑ Great pace!</div>
+          <div class="stat-card__change stat-card__change--up">â†‘ Great pace!</div>
         </div>
       </div>
       <div class="stat-card animate-in">
@@ -126,7 +135,7 @@
         <div class="stat-card__info">
           <div class="stat-card__label">Steps Today</div>
           <div class="stat-card__value" data-count="8420">0</div>
-          <div class="stat-card__change stat-card__change--up">↑ 84% of goal</div>
+          <div class="stat-card__change stat-card__change--up">â†‘ 84% of goal</div>
         </div>
       </div>
     </div>
@@ -177,7 +186,7 @@
         </div>
         <div class="progress-bar-group">
           <div class="progress-bar__header">
-            <span class="progress-bar__label">🥩 Protein</span>
+            <span class="progress-bar__label">ðŸ¥© Protein</span>
             <span class="progress-bar__value">85g / 150g</span>
           </div>
           <div class="progress-bar">
@@ -186,7 +195,7 @@
         </div>
         <div class="progress-bar-group">
           <div class="progress-bar__header">
-            <span class="progress-bar__label">🍞 Carbs</span>
+            <span class="progress-bar__label">ðŸž Carbs</span>
             <span class="progress-bar__value">180g / 300g</span>
           </div>
           <div class="progress-bar">
@@ -195,7 +204,7 @@
         </div>
         <div class="progress-bar-group">
           <div class="progress-bar__header">
-            <span class="progress-bar__label">🥑 Fat</span>
+            <span class="progress-bar__label">ðŸ¥‘ Fat</span>
             <span class="progress-bar__value">45g / 80g</span>
           </div>
           <div class="progress-bar">
@@ -204,7 +213,7 @@
         </div>
         <div class="progress-bar-group">
           <div class="progress-bar__header">
-            <span class="progress-bar__label">💧 Fiber</span>
+            <span class="progress-bar__label">ðŸ’§ Fiber</span>
             <span class="progress-bar__value">18g / 30g</span>
           </div>
           <div class="progress-bar">
@@ -222,7 +231,7 @@
       <div class="meal-card animate-in">
         <div class="meal-card__header">
           <div class="meal-card__type">
-            <span class="meal-card__emoji">🌅</span>
+            <span class="meal-card__emoji">ðŸŒ…</span>
             <div>
               <div class="meal-card__name">Breakfast</div>
               <div class="meal-card__cals">420 kcal</div>
@@ -246,7 +255,7 @@
       <div class="meal-card animate-in">
         <div class="meal-card__header">
           <div class="meal-card__type">
-            <span class="meal-card__emoji">☀️</span>
+            <span class="meal-card__emoji">â˜€ï¸</span>
             <div>
               <div class="meal-card__name">Lunch</div>
               <div class="meal-card__cals">580 kcal</div>
@@ -274,7 +283,7 @@
       <div class="meal-card animate-in">
         <div class="meal-card__header">
           <div class="meal-card__type">
-            <span class="meal-card__emoji">🌙</span>
+            <span class="meal-card__emoji">ðŸŒ™</span>
             <div>
               <div class="meal-card__name">Dinner</div>
               <div class="meal-card__cals">450 kcal</div>
@@ -294,7 +303,7 @@
       <div class="meal-card animate-in">
         <div class="meal-card__header">
           <div class="meal-card__type">
-            <span class="meal-card__emoji">🍎</span>
+            <span class="meal-card__emoji">ðŸŽ</span>
             <div>
               <div class="meal-card__name">Snacks</div>
               <div class="meal-card__cals">0 kcal</div>
@@ -315,7 +324,7 @@
           <h2 class="card__title">Exercise Summary</h2>
           <p class="card__subtitle">Today's activities</p>
         </div>
-        <a href="exercise.php" class="card__action">View All →</a>
+        <a href="exercise.php" class="card__action">View All â†’</a>
       </div>
       <table class="data-table">
         <thead>
@@ -352,5 +361,4 @@
 
   <script src="js/main.js"></script>
 </body>
-</html>
 </html>

@@ -15,6 +15,13 @@ $success = '';
 $old     = ['name' => '', 'email' => ''];
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    if (
+        empty($_POST['csrf_token']) ||
+        !hash_equals($_SESSION['csrf_token'] ?? '', $_POST['csrf_token'])
+    ) {
+        $errors['general'] = 'Invalid request. Please refresh and try again.';
+    }
+
     $name            = sanitize($_POST['name']             ?? '');
     $email           = sanitize($_POST['email']            ?? '');
     $password        = $_POST['password']                  ?? '';

@@ -1,7 +1,12 @@
 <?php
+require_once __DIR__ . '/backend/bootstrap.php';
 require_once __DIR__ . '/backend/db.php';
-$user_id = 1; // hardcoded until auth is integrated
+require_once __DIR__ . '/backend/auth.php';
+
 $pdo = get_pdo();
+ensure_authenticated($pdo, '/progress.php');
+
+$user_id = $_SESSION['user_id'];
 
 // Fetch current goals
 $stmt = $pdo->prepare("SELECT * FROM goals WHERE user_id = ?");

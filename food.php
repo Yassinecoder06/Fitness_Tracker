@@ -1,6 +1,13 @@
 <?php
 declare(strict_types=1);
 
+require_once __DIR__ . '/backend/bootstrap.php';
+require_once __DIR__ . '/backend/db.php';
+require_once __DIR__ . '/backend/auth.php';
+
+$pdo = get_pdo();
+ensure_authenticated($pdo, '/food.php');
+
 require_once __DIR__ . '/backend/food_repository.php';
 
 function e(string $value): string

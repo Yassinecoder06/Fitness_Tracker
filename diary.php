@@ -1,42 +1,14 @@
 <?php
 
-session_start();
-if(!isset($_SESSION['user_id'])) {
-    header('Location:login.php');
-    exit;
-}
-
 require_once __DIR__ . '/backend/bootstrap.php';
 require_once __DIR__ . '/backend/db.php';
+require_once __DIR__ . '/backend/auth.php';
+
 $pdo = get_pdo();
+ensure_authenticated($pdo, '/diary.php');
 
-if (!isset($_SESSION['user_id']) && isset($_COOKIE['remember_token'])) {
-
-    $stmt = $pdo->prepare("
-        SELECT user_id FROM remember_tokens
-        WHERE token = ? AND expires_at > NOW()
-        LIMIT 1
-    ");
-
-    $stmt->execute([$_COOKIE['remember_token']]);
-    $tokenData = $stmt->fetch();
-
-    if ($tokenData) {
-
-        // get user
-        $stmt = $pdo->prepare("SELECT * FROM users WHERE id = ?");
-        $stmt->execute([$tokenData['user_id']]);
-        $user = $stmt->fetch();
-
-        if ($user) {
-            $_SESSION['user_id'] = $user['id'];
-            $_SESSION['user_name'] = $user['name'];
-            $_SESSION['user_email'] = $user['email'];
-        }
-    }
-}
 $pdo->exec("SET TIME ZONE 'Africa/Tunis';");
-$user_id = $_SESSION['user_id']; 
+$user_id = $_SESSION['user_id'];
 
 $selected_date = $_GET['date'] ?? date('Y-m-d');
 $display_date = date('l, F j Y', strtotime($selected_date));

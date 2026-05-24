@@ -2,12 +2,19 @@
 session_start();
 
 if (!empty($_SESSION['user_id'])) {
-    header('Location: /dashboard.php');
+    header('Location: /index.php');
     exit;
 }
 require_once __DIR__ . '/backend/bootstrap.php';
 require_once __DIR__ . '/backend/db.php';
 $pdo = get_pdo();
+
+function is_https_request(): bool {
+    if (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off') {
+        return true;
+    }
+    return (isset($_SERVER['HTTP_X_FORWARDED_PROTO']) && $_SERVER['HTTP_X_FORWARDED_PROTO'] === 'https');
+}
 
 function sanitize(string $value): string {
     return htmlspecialchars(trim($value), ENT_QUOTES, 'UTF-8');
@@ -90,10 +97,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && !$isLockedOut) {
                 if ($remember) {
                     $token  = bin2hex(random_bytes(32));
                     $expiry = $now + (30 * 24 * 60 * 60);
+                    $cookieSecure = is_https_request();
                     setcookie('remember_token', $token, [
                         'expires'  => $expiry,
                         'path'     => '/',
-                        'secure'   => true,
+                        'secure'   => $cookieSecure,
                         'httponly' => true,
                         'samesite' => 'Lax',
                     ]);
