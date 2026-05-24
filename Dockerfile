@@ -2,9 +2,17 @@ FROM php:8.2-cli
 
 WORKDIR /app
 
+RUN apt-get update \
+	&& apt-get install -y --no-install-recommends git unzip \
+	&& rm -rf /var/lib/apt/lists/*
+
+COPY --from=composer:2.7 /usr/bin/composer /usr/local/bin/composer
+
 # Copy app source
 COPY . /app
 
+RUN chmod +x /app/docker/entrypoint.sh
+
 EXPOSE 8000
 
-CMD ["php", "-S", "0.0.0.0:8000", "-t", "/app"]
+ENTRYPOINT ["/app/docker/entrypoint.sh"]
