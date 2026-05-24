@@ -60,6 +60,21 @@ Food data was webscraped from OpenFoodFacts.
 - Legacy static HTML pages (reference only): legacy-html/
 - Supabase migrations: supabase/migrations/
 
+## Docker (PHP app only)
+
+Build and run the PHP app container:
+
+```powershell
+docker build -t fittrack-php .
+docker run --rm -p 8000:8000 --env-file .env fittrack-php
+```
+
+Or use docker-compose:
+
+```powershell
+docker compose up --build
+```
+
 ## Common Supabase CLI commands
 
 - Start/stop:

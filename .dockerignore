@@ -1,0 +1,11 @@
+.git/
+.vscode/
+.venv/
+node_modules/
+vendor/
+importation/
+db/foods_export.json
+supabase/.temp/
+*.log
+*.tmp
+*.temp
