@@ -145,14 +145,7 @@ $recentExercises = fetch_recent_exercises((int)$_SESSION['user_id'], 5);
                 FitTrack
             </a>
         </div>
-        <div class="navbar__search">
-            <svg class="navbar__search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
-                stroke-linecap="round">
-                <circle cx="11" cy="11" r="8" />
-                <line x1="21" y1="21" x2="16.65" y2="16.65" />
-            </svg>
-            <input type="text" placeholder="Search food, exercises, goals...">
-        </div>
+
         <div class="navbar__right">
             <button class="navbar__icon-btn" aria-label="Notifications">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
